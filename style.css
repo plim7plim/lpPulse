@@ -1,0 +1,666 @@
+:root {
+  --green: #12c975;
+  --ink: #15392c;
+  --muted: #627268;
+  --border: #dfe7e1;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Movimento: entradas discretas e respostas ao toque. */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity 700ms var(--ease) var(--reveal-delay, 0ms),
+    transform 700ms var(--ease) var(--reveal-delay, 0ms);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.button {
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 250ms var(--ease),
+    background-color 250ms ease,
+    border-color 250ms ease,
+    box-shadow 250ms ease;
+}
+
+.button:active {
+  transform: translateY(1px) scale(0.98);
+}
+
+.primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 25%,
+    #ffffff40 50%,
+    transparent 75%
+  );
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+.primary:focus-visible::after {
+  animation: button-sheen 650ms ease;
+}
+
+.brand {
+  transition: color 250ms ease;
+}
+
+.brand:hover {
+  color: #099f59;
+}
+
+.summary {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 50px #143a2b12;
+  backdrop-filter: blur(12px);
+}
+
+.summary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: linear-gradient(transparent, #31e28e, transparent);
+  transform: translateY(-100%);
+  animation: pulse-travel 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.summary div {
+  position: relative;
+  transition: transform 350ms var(--ease);
+}
+
+input {
+  transition:
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    background-color 200ms ease;
+}
+
+input:focus {
+  border-color: #0b9955;
+  box-shadow: 0 0 0 4px #12c97512;
+}
+
+.contact:target h2 {
+  animation: contact-emphasis 900ms ease;
+}
+
+.status:not([hidden]) {
+  animation: feedback-in 250ms var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px #15392c16;
+  }
+
+  .button:active {
+    transform: translateY(1px) scale(0.98);
+  }
+
+  .primary:hover::after {
+    animation: button-sheen 650ms ease;
+  }
+
+  .summary div:hover {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes button-sheen {
+  to {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes pulse-travel {
+  0%,
+  15% {
+    transform: translateY(-100%);
+  }
+  65%,
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes contact-emphasis {
+  40% {
+    color: #099f59;
+  }
+}
+
+@keyframes feedback-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 30px;
+}
+body {
+  margin: 0;
+  isolation: isolate;
+  font-family: Arial, sans-serif;
+  color: var(--ink);
+  background: #fff;
+  font-size: 16px;
+}
+
+#dispatch-background {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button,
+input {
+  font: inherit;
+}
+a,
+button,
+input {
+  outline-offset: 4px;
+}
+header,
+main,
+footer {
+  max-width: 1160px;
+  margin: auto;
+}
+header {
+  padding: 28px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+}
+.brand span {
+  color: var(--green);
+}
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 15px 21px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.primary {
+  color: #103426;
+  background: var(--green);
+}
+.primary:hover {
+  background: #0fba6b;
+}
+.outline {
+  border-color: var(--border);
+}
+.outline:hover {
+  background: #f5f8f6;
+}
+.hero {
+  padding: 95px 40px 110px;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  align-items: center;
+  gap: 75px;
+}
+.label {
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-weight: 600;
+  color: var(--muted);
+}
+h1 {
+  font-size: clamp(36px, 4.5vw, 54px);
+  letter-spacing: -2px;
+  line-height: 1.15;
+  margin: 24px 0;
+}
+h1 span {
+  color: #09a75e;
+}
+p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+.intro p {
+  max-width: 420px;
+  margin-bottom: 28px;
+}
+.summary {
+  border-left: 1px solid var(--border);
+  padding-left: 35px;
+}
+.summary div {
+  padding: 23px 0;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.summary span {
+  font-size: 14px;
+  color: #099952;
+}
+.summary h2 {
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0;
+}
+.contact {
+  border-top: 1px solid var(--border);
+  margin: 0 40px;
+  padding: 55px 0 70px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 100px;
+}
+
+.contact-action {
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.whatsapp-contact {
+  gap: 12px;
+  min-width: 190px;
+}
+
+.button {
+  border-radius: 999px;
+  min-height: 48px;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.whatsapp-contact svg {
+  display: block;
+  flex-shrink: 0;
+}
+
+.contact {
+  align-items: center;
+}
+
+.contact-action .status {
+  margin-bottom: 0;
+}
+.contact h2 {
+  font-size: 32px;
+  letter-spacing: -1px;
+  margin: 0 0 16px;
+}
+.contact p {
+  max-width: 340px;
+  margin-top: 0;
+}
+form {
+  display: flex;
+  flex-direction: column;
+}
+label {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+input {
+  padding: 13px 14px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 20px;
+  min-width: 0;
+}
+input:focus {
+  outline-color: #0b9955;
+}
+form .button {
+  align-self: flex-start;
+}
+.status {
+  font-size: 14px;
+  margin-top: 16px !important;
+}
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  padding: 24px 40px;
+}
+footer .brand {
+  font-size: 24px;
+}
+footer > span {
+  color: var(--muted);
+  font-size: 12px;
+}
+[hidden] {
+  display: none !important;
+}
+@media (max-width: 700px) {
+  header {
+    padding: 22px 20px;
+  }
+  header .button {
+    padding: 11px 13px;
+    font-size: 12px;
+  }
+  .hero {
+    padding: 60px 20px;
+    grid-template-columns: 1fr;
+    gap: 35px;
+  }
+  h1 {
+    font-size: 40px;
+    letter-spacing: -1.5px;
+  }
+  .summary {
+    padding-left: 20px;
+  }
+  .summary div {
+    padding: 14px 0;
+  }
+  .contact {
+    margin: 0 20px;
+    padding: 40px 0;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  footer {
+    padding: 24px 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Identidade visual da landing page */
+body {
+  background: #fbfcfa;
+}
+header {
+  padding-top: 30px;
+  padding-bottom: 30px;
+}
+header .brand {
+  font-size: 38px;
+}
+.hero {
+  min-height: 610px;
+  padding-top: 80px;
+  padding-bottom: 95px;
+  gap: 65px;
+}
+.label {
+  display: inline-block;
+  color: #087344;
+  background: #e5f4e9;
+  padding: 9px 12px;
+  border-radius: 4px;
+  letter-spacing: 1.4px;
+}
+h1 {
+  font-size: clamp(48px, 6.5vw, 78px);
+  line-height: 1.04;
+  letter-spacing: -4px;
+  margin: 25px 0;
+}
+h1 span {
+  color: #099f59;
+}
+.intro p {
+  font-size: 18px;
+  max-width: 385px;
+  margin-bottom: 30px;
+}
+.button {
+  padding: 17px 24px;
+}
+.summary {
+  background: linear-gradient(145deg, #143a2bf5, #103c2bec);
+  color: #fff;
+  padding: 20px 32px;
+  border: 0;
+  border-radius: 8px;
+}
+.summary div {
+  padding: 27px 0;
+  gap: 20px;
+}
+.summary div + div {
+  border-top: 1px solid #ffffff24;
+}
+.summary span {
+  color: #31e28e;
+  font-size: 13px;
+}
+.summary h2 {
+  font-size: 20px;
+  line-height: 1.5;
+}
+.brand-strip {
+  background: linear-gradient(105deg, #16d27c, #2ce59a);
+  padding: 27px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.brand-strip > span:first-child {
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: -0.6px;
+}
+.strip-mark {
+  font-size: 40px;
+  font-weight: 700;
+  letter-spacing: -2px;
+}
+.contact {
+  border: 0;
+  padding-top: 75px;
+  padding-bottom: 85px;
+}
+.contact h2 {
+  font-size: 40px;
+  letter-spacing: -1.8px;
+}
+.contact p {
+  font-size: 17px;
+}
+input {
+  background: #fff;
+  padding: 15px;
+}
+footer {
+  border-top-color: #d5e3d9;
+}
+@media (max-width: 700px) {
+  header .brand {
+    font-size: 30px;
+  }
+  .hero {
+    min-height: auto;
+    padding: 55px 20px;
+    gap: 35px;
+  }
+  h1 {
+    font-size: 56px;
+    letter-spacing: -2.8px;
+  }
+  .intro p {
+    font-size: 17px;
+  }
+  .summary {
+    padding: 10px 24px;
+  }
+  .summary div {
+    padding: 19px 0;
+  }
+  .summary h2 {
+    font-size: 18px;
+  }
+  .brand-strip {
+    padding: 24px 20px;
+  }
+  .brand-strip > span:first-child {
+    font-size: 18px;
+    max-width: 220px;
+    line-height: 1.4;
+  }
+  .strip-mark {
+    font-size: 30px;
+  }
+  .contact {
+    padding: 50px 0;
+  }
+  .contact h2 {
+    font-size: 34px;
+  }
+}
+
+/* Layout de toque, inclusive em telas pequenas e na horizontal. */
+@media (max-width: 700px) {
+  header {
+    gap: 16px;
+  }
+
+  .hero,
+  .contact {
+    min-width: 0;
+  }
+
+  h1 {
+    font-size: clamp(42px, 10.8vw, 65px);
+    letter-spacing: -0.045em;
+    line-height: 1.08;
+  }
+
+  .label {
+    max-width: 100%;
+    font-size: 11px;
+    line-height: 1.6;
+    letter-spacing: 0.7px;
+  }
+
+  .intro > .button,
+  .whatsapp-contact {
+    width: 100%;
+    min-height: 52px;
+    font-size: 16px;
+  }
+
+  .summary {
+    border-radius: 14px;
+  }
+
+  .brand-strip {
+    gap: 14px;
+  }
+
+  .strip-mark {
+    flex-shrink: 0;
+  }
+
+  .contact {
+    gap: 16px;
+  }
+
+  .contact h2 {
+    font-size: clamp(28px, 7.5vw, 36px);
+    line-height: 1.2;
+  }
+
+  .contact p {
+    margin-bottom: 0;
+  }
+
+  .contact-action {
+    width: 100%;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 360px) {
+  header,
+  .hero,
+  footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .contact {
+    margin-left: 16px;
+    margin-right: 16px;
+  }
+
+  header .button {
+    min-height: 44px;
+  }
+
+  .brand-strip {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+}

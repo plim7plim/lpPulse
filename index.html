@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pulse — Empresa de disparos pelo WhatsApp</title>
+    <meta
+      name="description"
+      content="Pulse: empresa de disparos de mensagens pelo WhatsApp. Solicite um orçamento para sua campanha."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2312c975'/%3E%3Ctext x='9' y='24' font-family='Arial' font-weight='bold' font-size='23' fill='%230d3023'%3Ep%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <canvas id="dispatch-background" aria-hidden="true"></canvas>
+    <header>
+      <a class="brand" href="#inicio" aria-label="Pulse início"
+        >pulse<span>.</span></a
+      >
+      <a class="button outline" href="#contato">Contate-nos</a>
+    </header>
+    <main id="inicio">
+      <section class="hero">
+        <div class="intro">
+          <span class="label">EMPRESA DE DISPAROS PELO WHATSAPP</span>
+          <h1>Sua mensagem.<br />Seu cliente.<br /><span>Mais perto.</span></h1>
+          <p>
+            A Pulse é uma empresa de disparos de mensagens pelo WhatsApp.
+            Levamos sua campanha até os seus clientes.
+          </p>
+          <a class="button primary" href="#contato">Contate-nos</a>
+        </div>
+        <div class="summary" aria-label="Recursos do Pulse">
+          <div>
+            <span>01</span>
+            <h2>Seu público</h2>
+          </div>
+          <div>
+            <span>02</span>
+            <h2>Sua mensagem</h2>
+          </div>
+          <div>
+            <span>03</span>
+            <h2>Nosso disparo</h2>
+          </div>
+        </div>
+      </section>
+      <div class="brand-strip" aria-hidden="true">
+        <span>Uma mensagem abre uma conversa.</span
+        ><span class="strip-mark">pulse.</span>
+      </div>
+      <section class="contact" id="contato">
+        <div>
+          <h2>Vamos falar da sua campanha?</h2>
+          <p>Fale com a Pulse pelo WhatsApp.</p>
+        </div>
+        <div class="contact-action">
+          <button class="button primary whatsapp-contact" type="button">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3 20.5l1.4-4.7a8.5 8.5 0 1 1 16.1-4.2Z"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M8.1 7.5c.4-.4.8-.1 1 .3l.8 1.6c.2.4-.3.8-.6 1.1.7 1.6 1.8 2.6 3.4 3.3.3-.3.8-1.1 1.2-.9l1.9.9c.4.2.5.7.2 1.1-.7 1-1.7 1.2-2.9.8-3.1-1-5.6-3.5-6.3-6-.2-.9.5-1.8 1.3-2.2Z"
+                fill="currentColor"
+              />
+            </svg>
+            Contate-nos
+          </button>
+          <p class="status" id="contact-status" role="status" hidden></p>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <a class="brand" href="#inicio">pulse<span>.</span></a
+      ><span>© 2026 Pulse</span>
+    </footer>
+    <script src="app.js"></script>
+    <script src="background.js"></script>
+  </body>
+</html>
