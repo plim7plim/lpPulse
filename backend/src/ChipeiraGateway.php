@@ -22,7 +22,10 @@ final class ChipeiraGateway {
             switch ($op) {
                 case 'status': $path='/status'; break;
                 case 'phones': $path='/phones'; break;
-                case 'available': $path='/phones/available'; break;
+                case 'whatsapp_numbers':
+                    $type = $data['type'] ?? 'whatsapp';
+                    if (!in_array($type, ['sms','whatsapp'], true)) throw new PanelError('invalid_operation','Tipo de número inválido.');
+                    $path='/whatsapp/numbers?type='.$type; break;
                 case 'messages':
                     $number=PanelValidation::text($data,'number',32);
                     if (!preg_match('/^\+?[0-9]{10,15}$/D',$number)) throw new PanelError('invalid_number','Número inválido.');
@@ -32,26 +35,24 @@ final class ChipeiraGateway {
                 default: throw new PanelError('invalid_operation','Operação inválida.');
             }
         } else {
-            if ($op==='reserve') {
-                if ($method!=='POST') throw new PanelError('method_not_allowed','Use POST.',405);
-                $number=PanelValidation::text($data,'number',32);
-                if (!preg_match('/^\+?[0-9]{10,15}$/D',$number)) throw new PanelError('invalid_number','Número inválido.');
-                $verb='POST'; $path='/phones/reserve'; $body=['number'=>$number];
-            }
-            elseif ($op==='cancel') { $verb='PATCH'; $path='/campaigns/'.PanelValidation::id($data['id']??null); $body=['status'=>'cancelled']; }
+            if ($op==='cancel') { $verb='PATCH'; $path='/campaigns/'.PanelValidation::id($data['id']??null); $body=['status'=>'cancelled']; }
             elseif ($op==='create') {
                 $verb='POST'; $path='/campaigns';
                 $requestId=PanelValidation::text($data,'request_id',80);
                 if (!preg_match('/^[a-zA-Z0-9_-]{16,80}$/D',$requestId) || ($data['consent']??false)!==true) throw new PanelError('invalid_dispatch','Revise a campanha e confirme a autorização.');
-                $recipients=$data['recipients']??null; $from=$data['from']??null;
-                if (!is_array($recipients) || array_keys($recipients)!==range(0,count($recipients)-1) || count($recipients)<1 || count($recipients)>500 || !is_array($from) || array_keys($from)!==range(0,count($from)-1) || count($from)<1 || count($from)>64) throw new PanelError('invalid_dispatch','Informe remetentes e até 500 destinatários.');
-                foreach (array_merge($recipients,$from) as $number) if (!is_string($number) || !preg_match('/^\+?[0-9]{10,15}$/D',$number)) throw new PanelError('invalid_number','Número inválido.');
-                $body=['requestId'=>$requestId,'name'=>PanelValidation::text($data,'name',120),'message'=>PanelValidation::text($data,'message',6400),'recipients'=>$recipients,'from'=>$from,'consent'=>true];
+                $recipients=$data['recipients']??null;
+                if (!is_array($recipients) || array_keys($recipients)!==range(0,count($recipients)-1) || count($recipients)<1 || count($recipients)>500) throw new PanelError('invalid_dispatch','Informe até 500 destinatários.');
+                foreach ($recipients as $number) if (!is_string($number) || !preg_match('/^\+?[0-9]{10,15}$/D',$number)) throw new PanelError('invalid_number','Número inválido.');
+                $body=['requestId'=>$requestId,'name'=>PanelValidation::text($data,'name',120),'message'=>PanelValidation::text($data,'message',6400),'recipients'=>$recipients,'consent'=>true];
             } else throw new PanelError('invalid_operation','Operação inválida.');
         }
         $base=$this->baseUrl();
         $result=$this->http($base.'/api/integration/pulse'.$path,$verb,$body,['Accept: application/json','x-api-key: '.$this->config['api_key'],'x-pulse-company: '.$company]);
         unset($result['success']);
+        if ($op==='whatsapp_numbers') {
+            foreach ($result['phones']??[] as $item) if (!isset($item['slot']) || (int)$item['slot']<1) throw new PanelError('catalog_updating','O catálogo está sendo atualizado. Consulte novamente em instantes.',503);
+            $result['phones']=array_map(static fn(array $item): array => ['slot'=>(int)$item['slot'],'operator'=>$item['operator']??null,'online'=>($item['online']??false)===true,'available'=>($item['available']??false)===true,'status'=>in_array($item['status']??'',['available','empty','offline','in_use','unavailable','unverified'],true)?$item['status']:'unavailable'],$result['phones']??[]);
+        }
         if ($op==='status') $result += ['connected'=>true,'configured'=>true];
         return $result;
     }

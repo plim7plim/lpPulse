@@ -23,6 +23,10 @@ $payload=['op'=>'create','request_id'=>'request-test-1234','consent'=>true,'name
 $gateway->handle('42','POST',$payload);
 check(end($calls)['body']['requestId']==='request-test-1234','Idempotency forwarded');
 check(!isset(end($calls)['body']['company_id']),'Company cannot be injected');
+check(!isset(end($calls)['body']['from']),'Sender selection is server controlled');
+$catalog=new ChipeiraGateway($config,fn()=>['success'=>true,'phones'=>[['slot'=>7,'phoneNumber'=>'+5511999998888','number'=>'+5511999998888','operator'=>'TIM','online'=>true]]]);
+$public=$catalog->handle('42','GET',['op'=>'whatsapp_numbers','type'=>'sms']);
+check($public['phones']===[['slot'=>7,'operator'=>'TIM','online'=>true,'available'=>false,'status'=>'unavailable']],'Catalog hides phone numbers even from an old upstream response');
 fails(fn()=> $gateway->handle('42','POST',array_merge($payload,['recipients'=>array_fill(0,501,'+5511999998888')])),'invalid_dispatch');
 fails(fn()=> ChipeiraGateway::validateBaseUrl('https://user:password@host.com'),'invalid_gateway_url');
 fails(fn()=> ChipeiraGateway::validateBaseUrl('http://192.168.0.1'),'invalid_gateway_url');

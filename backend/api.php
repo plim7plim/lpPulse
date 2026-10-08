@@ -39,7 +39,7 @@ try {
     if (!is_string($action) || !preg_match('/^[a-z_]{1,32}$/D',$action)) throw new \Pulse\PanelError('invalid_action','Recurso inválido.',400);
     $db=new PDO($config['dsn'],$config['username'],$config['password']??'',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_EMULATE_PREPARES=>false,PDO::ATTR_STRINGIFY_FETCHES=>true]);
     $db->exec("SET time_zone = '+00:00'");
-    $api=new \Pulse\PanelApi($db,$config['api_secret'],$config['chipeira']??[],['local_test'=>($config['local_test']??false)===true,'test_emails'=>$config['test_number_selection_emails']??[]]);
+    $api=new \Pulse\PanelApi($db,$config['api_secret'],$config['chipeira']??[]);
     $token=$_COOKIE['pulse_session']??'';
     if (is_string($token)) $api->authenticate($token);
     if ($action==='login') {

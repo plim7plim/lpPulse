@@ -51,13 +51,15 @@
   const campaignList = node("div");
   campaignPanel.append(campaignTop, campaignList);
   campaignsView.append(campaignPanel);
-  const dispatchPanel = node("section", undefined, "service-panel chip-panel");
-  dispatchPanel.append(node("h2", "Enviar pela chipeira"));
+  const dispatchPanel = node("section", undefined, "service-panel chip-panel sms-composer");
+  const dispatchHeader = node("div", undefined, "composer-heading");
+  dispatchHeader.append(node("h2", "Nova campanha"), node("span", "Distribuição automática · até 64 slots", "composer-badge"));
+  dispatchPanel.append(dispatchHeader);
   const dispatchStatus = node("p", undefined, "service-description");
-  const form = node("form", undefined, "service-form");
+  const form = node("form", undefined, "service-form composer-form");
   const fields = {};
   function field(key, label, tag = "input") {
-    const wrapper = node(tag === "div" ? "div" : "label", undefined, "chip-field");
+    const wrapper = node(tag === "div" ? "div" : "label", undefined, `chip-field composer-${key}`);
     wrapper.append(node("span", label));
     const input = node(tag);
     input.id = `chip-${key}`;
@@ -68,17 +70,15 @@
     return input;
   }
   field("name", "Nome da campanha").maxLength = 120;
-  const sender = field("sender", "Números remetentes", "div");
-  sender.className = "sender-options";
-  sender.tabIndex = -1;
-  sender.setAttribute("role", "group");
-  sender.setAttribute("aria-label", "Números remetentes");
-  const senderHelp = node("p", "Marque um ou mais números para enviar a campanha.", "import-hint");
-  const chooseAvailable = button("Escolher números disponíveis", () => { location.hash = "my-numbers"; });
-  sender.parentElement.append(senderHelp, chooseAvailable);
-  const selectedSenders = () => [...sender.querySelectorAll("input:checked")].map(input => input.value);
+  fields.name.placeholder = "Ex.: Aviso aos clientes";
   field("message", "Mensagem", "textarea").maxLength = 1600;
   fields.message.rows = 4;
+  fields.message.setAttribute("aria-label", "Mensagem");
+  fields.message.placeholder = "Escreva o SMS que seus contatos vão receber…";
+  const messageCount = node("small", "0 caracteres", "composer-counter");
+  fields.message.parentElement.append(messageCount);
+  fields.message.addEventListener("input", () => { messageCount.textContent = `${fields.message.value.length} caracteres`; });
+  form.addEventListener("reset", () => { messageCount.textContent = "0 caracteres"; });
   field(
     "recipients",
     "Destinatários · um telefone com DDD por linha",
@@ -86,6 +86,7 @@
   );
   fields.recipients.rows = 5;
   fields.recipients.maxLength = 10000;
+  fields.recipients.placeholder = "11999999999\n21988888888";
   const consentLabel = node("label", undefined, "service-consent");
   const consent = node("input");
   consent.type = "checkbox";
@@ -118,12 +119,6 @@
     event.preventDefault();
     if (!connected || !canSend() || !form.reportValidity() || dispatching)
       return;
-    const selected = selectedSenders();
-    if (!selected.length) {
-      feedback.textContent = "Marque pelo menos um número remetente. Se não houver números vinculados, escolha um em Meus números após o pagamento confirmado.";
-      sender.focus();
-      return;
-    }
     const raw = fields.recipients.value
       .split(/\r?\n/)
       .map((value) => value.trim())
@@ -149,13 +144,12 @@
       request_id: requestId,
       name: fields.name.value.trim(),
       message: fields.message.value.trim(),
-      from: selected,
       recipients,
       consent: consent.checked,
     };
     summary.replaceChildren(
       node("p", `${reviewedPayload.name} · ${recipients.length} destinatários`),
-      node("p", `Remetentes: ${selected.join(", ")}`),
+      node("p", "Distribuição automática entre os slots online da chipeira (até 64)."),
       node("p", reviewedPayload.message, "chip-message"),
       node(
         "p",
@@ -195,9 +189,9 @@
     form.hidden = !connected || !canSend();
     dispatchStatus.textContent = connected
       ? canSend()
-        ? "Selecione um número vinculado à sua empresa e revise a lista antes do envio."
+        ? "Os envios são distribuídos automaticamente entre os slots online da chipeira, até 64."
         : "Seu perfil permite consultar campanhas. O envio exige acesso de operador."
-      : "Após o pagamento confirmado, escolha um número em Meus números para liberar o envio.";
+      : "Conectando à chipeira para preparar o envio.";
     const original = smsView.querySelector(".service-layout");
     if (original) original.hidden = connected;
     campaignPanel.hidden = !server();
@@ -295,8 +289,6 @@
         ? `${phones.length} número(s) vinculado(s) · integração SMS conectada`
         : "Conectado. Após o pagamento confirmado, escolha um número disponível em Meus números.";
       phoneList.replaceChildren();
-      const oldSenders = new Set(selectedSenders());
-      sender.replaceChildren();
       phones.forEach((phone) => {
         const row = node("article", undefined, "chip-number-row");
         const info = node("div");
@@ -312,14 +304,7 @@
           button("Mensagens recebidas", () => showMessages(phone.phoneNumber)),
         );
         phoneList.append(row);
-        if (phone.online) {
-          const option = node("label", undefined, "sender-option"), checkbox = node("input");
-          checkbox.type = "checkbox"; checkbox.value = phone.phoneNumber;
-          checkbox.checked = oldSenders.has(phone.phoneNumber);
-          option.append(checkbox, node("span", phone.phoneNumber)); sender.append(option);
-        }
       });
-      if (!sender.childElementCount) sender.append(node("p", "Nenhum número online vinculado. Escolha um número disponível em Meus números.", "import-hint"));
       if (
         selectedNumber &&
         !phones.some((phone) => phone.phoneNumber === selectedNumber)

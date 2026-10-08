@@ -3,7 +3,7 @@
   const dashboard = document.getElementById("dashboard");
   const sidebar = dashboard.querySelector(".sidebar");
   const menu = document.getElementById("menu-toggle");
-  const names = { "sms-marketing": "Enviar SMS", "my-numbers": "Meus números", campaigns: "Campanhas", finance: "Financeiro", account: "Minha conta" };
+  const names = { "sms-marketing": "Enviar SMS", "whatsapp-numbers": "Comprar números", campaigns: "Campanhas", finance: "Financeiro", account: "Minha conta" };
   function closeMenu() {
     dashboard.classList.remove("menu-open");
     menu.setAttribute("aria-expanded", "false");

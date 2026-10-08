@@ -598,7 +598,7 @@ h1 {
   font-size: clamp(42px, 5.7vw, 74px);
 }
 #dispatch-background {
-  opacity: 0.65;
+  opacity: 1;
 }
 .summary {
   box-shadow: none;

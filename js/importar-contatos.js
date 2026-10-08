@@ -28,7 +28,7 @@
     if (className) item.className = className;
     return item;
   };
-  const oldLabel = recipients.closest("label"), field = create("div", undefined, "chip-field");
+  const oldLabel = recipients.closest("label"), field = create("div", undefined, oldLabel.className);
   field.append(...oldLabel.childNodes); oldLabel.replaceWith(field);
   field.querySelector("span").id = "recipients-label";
   recipients.setAttribute("aria-labelledby", "recipients-label");
@@ -37,7 +37,8 @@
   const input = create("input"); input.type = "file"; input.accept = ".xlsx,.xls,.csv,.tsv"; input.hidden = true;
   const notice = create("p", "Excel ou CSV · até 500 números por campanha", "import-hint");
   tools.append(open, input); field.append(tools, notice);
-  const guide = create("div", undefined, "import-guide");
+  const guide = create("details", undefined, "import-guide");
+  guide.append(create("summary", "Como preparar a planilha"));
   guide.append(create("p", "Crie uma coluna chamada Telefone e coloque um número com DDD por linha. Exemplo de formato: (11) 99999-9999 ou 5511999999999. A coluna Nome é opcional."));
   guide.append(create("p", "A primeira linha deve conter os nomes das colunas. Use números como texto, sem fórmulas. No Excel, escolha a aba e a coluna ao importar. Duplicados são removidos e números inválidos aparecem na revisão."));
   const template = create("a", "Baixar modelo CSV vazio");

@@ -36,15 +36,6 @@ try {
     $created=$api->handle('credit_requests','POST',['amount'=>'10.00','method'=>'pix']);
     $check($created['status']==='pending' && $created['charge_created']===false);
     $check($api->handle('balance','GET',[])['balance']===$before);
-    $check($api->handle('chipeira','GET',['op'=>'available'])['eligible']===false);
-    $reject(fn()=>$api->handle('chipeira','POST',['op'=>'reserve','number'=>'+5511999998888']),'payment_required');
-    $reference=hash('sha256',random_bytes(32));
-    $db->prepare("INSERT INTO payments(company_id,credit_request_id,provider,provider_payment_id,external_reference,idempotency_key,amount,status,credited_amount) VALUES (1001,?,'test-selection',?,?,?,'10.00','approved','10.00')")->execute([$created['id'],$reference,$reference,$reference]);
-    $paymentId=$db->lastInsertId();
-    $db->prepare("INSERT INTO balance_entries(company_id,credit_request_id,entry_key,type,amount,description,occurred_at) VALUES(1001,?,?,'credit','10.00','Selection test',UTC_TIMESTAMP())")->execute([$created['id'],hash('sha256','selection:'.$reference)]);
-    $reject(fn()=>$api->handle('chipeira','GET',['op'=>'available']),'chipeira_not_configured');
-    $db->prepare("UPDATE payments SET reversed_amount='10.00',status='refunded' WHERE id=?")->execute([$paymentId]);
-    $check($api->handle('chipeira','GET',['op'=>'available'])['eligible']===false);
     $items=$api->handle('credit_requests','GET',[])['items'];
     $check((string)$items[0]['id']===(string)$created['id']);
     $api->handle('billing_preferences','POST',['billing_email'=>'teste@gmail.com','responsible_name'=>'Teste financeiro','preferred_method'=>'pix']);

@@ -6,8 +6,9 @@
     <title>SMS · Pulse</title>
     <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
     <script src="../js/tema.js"></script>
-    <link rel="stylesheet" href="../css/clientes.css?v=20261008-7" /><link rel="stylesheet" href="../css/tarifas.css?v=20261008-1" />
-  </head>
+    <link rel="stylesheet" href="../css/clientes.css?v=20261008-11" /><link rel="stylesheet" href="../css/tarifas.css?v=20261008-1" />
+  <link rel="stylesheet" href="../css/cookies.css?v=20261008-4">
+</head>
   <body>
     <main class="login-layout" id="login">
       <section class="login-brand">
@@ -38,8 +39,8 @@
         <a class="brand sidebar-brand" href="../index.html" aria-label="Pulse início"><img class="brand-short" src="../assets/favicon.svg" width="34" height="34" alt="" /><span class="brand-full">pulse<span>.</span></span></a>
         <nav aria-label="Menu do cliente">
           <button data-view="sms-marketing" aria-label="Enviar SMS"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m21 3-7 18-4-7-7-4 18-7ZM10 14l6-6"/></svg><span class="nav-label">Enviar SMS</span></button>
-          <button data-view="my-numbers" aria-label="Meus números"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 5h4M11 18h2"/></svg><span class="nav-label">Meus números</span></button>
           <button data-view="campaigns" aria-label="Campanhas"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 4v16h17M8 15v-4M13 15V7M18 15v-6"/></svg><span class="nav-label">Campanhas</span></button>
+          <button data-view="whatsapp-numbers" aria-label="Comprar números"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 11.5a9 9 0 0 1-13.3 7.9L3 21l1.6-4.7A9 9 0 1 1 21 11.5Z"/><path d="M8 7c0 5 4 9 9 9M8 7h2l1 3-2 1M17 16v-2l-3-1-1 2"/></svg><span class="nav-label">Comprar números</span></button>
           <button data-view="account" aria-label="Minha conta"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg><span class="nav-label">Minha conta</span></button>
           <button data-view="finance" aria-label="Financeiro"><svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 10h18M15 15h3"/></svg><span class="nav-label">Financeiro</span></button>
         </nav>
@@ -53,7 +54,7 @@
         </header>
         <main class="content">
           <section id="sms-marketing-view">
-            <div class="page-heading"><p class="eyebrow">DISPAROS</p><h1>Enviar SMS</h1><p>Escolha seu número, escreva a mensagem e revise os contatos.</p></div>
+            <div class="page-heading"><p class="eyebrow">DISPAROS</p><h1>Enviar SMS</h1><p>Escreva sua mensagem e informe os contatos. A chipeira distribui os envios automaticamente.</p></div>
             <section class="service-panel pricing-panel" aria-labelledby="pricing-title">
               <div class="service-panel-top"><h2 id="pricing-title">Pacotes e tarifas</h2><span class="pricing-label">Tabela de valores</span></div>
               <div class="pricing-grid">
@@ -91,6 +92,20 @@
           </section>
           <section id="my-numbers-view" hidden><div class="page-heading"><p class="eyebrow">SUA EMPRESA</p><h1>Meus números</h1><p>Consulte os números vinculados e as mensagens recebidas.</p></div><div class="service-inventory"></div></section>
           <section id="campaigns-view" hidden><div class="page-heading"><p class="eyebrow">HISTÓRICO</p><h1>Campanhas</h1><p>Acompanhe os envios e consulte o resultado de cada contato.</p></div></section>
+          <section id="whatsapp-numbers-view" hidden>
+            <div class="page-heading"><p class="eyebrow">NÚMEROS AVULSOS</p><h1>Solicitar números</h1><p>Preencha as linhas do pedido com a modalidade, quantidade e DDD de sua preferência.</p></div>
+            <section class="service-panel">
+              <div class="service-panel-top"><h2>Seu pedido</h2><button id="number-add-line" class="button secondary" type="button">+ Adicionar linha</button></div>
+              <div class="number-order-guide"><p><strong>SMS</strong><br>Recebimento de SMS. O número pode ter WhatsApp, sem garantia desse acesso.</p><p><strong>SMS + WhatsApp garantido</strong><br>Acesso pelo celular com o código SMS recebido no Pulse após a compra.</p></div>
+              <form id="number-order-form">
+                <div class="number-sheet" role="region" aria-label="Linhas do pedido" tabindex="0"><table><thead><tr><th scope="col">Tipo de número</th><th scope="col">Quantidade</th><th scope="col">DDD preferido</th><th scope="col">Observações</th><th scope="col"><span class="sr-only">Ações</span></th></tr></thead><tbody id="number-order-lines"></tbody></table></div>
+                <div class="number-order-actions"><p id="number-order-total">1 número solicitado</p><button id="number-order-submit" type="submit" class="button primary">Enviar pedido</button></div>
+                <p class="import-hint">DDD opcional: deixe em branco se não tiver preferência. O pedido fica sujeito à disponibilidade e ao orçamento. Enviar este formulário não gera cobrança nem entrega um número.</p>
+                <p id="number-order-feedback" class="service-feedback" role="status"></p>
+              </form>
+            </section>
+            <section class="service-panel"><div class="service-panel-top"><h2>Pedidos enviados</h2><button id="number-orders-refresh" type="button" class="button secondary">Atualizar</button></div><div id="number-order-history"></div></section>
+          </section>
           <section id="account-view" hidden><div class="page-heading"><p class="eyebrow">ACESSO</p><h1>Minha conta</h1></div><div class="service-panel"><dl class="account-details"><dt>Nome</dt><dd id="account-name"></dd><dt>E-mail</dt><dd id="account-detail-email"></dd><dt>Empresa</dt><dd id="account-company"></dd><dt>Permissão</dt><dd id="account-role"></dd></dl><p id="environment-note" hidden>Banco local de testes. Os disparos pela chipeira são reais.</p></div></section>
           <section id="finance-view" hidden>
             <div class="page-heading"><p class="eyebrow">SUA EMPRESA</p><h1>Financeiro</h1><p>Consulte o saldo, acompanhe recargas e organize os pagamentos.</p></div>
@@ -129,12 +144,13 @@
         </main>
       </div>
     </div>
-    <script src="../js/clientes.js?v=20261008-5"></script>
+    <script src="../js/clientes.js?v=20261008-8"></script>
     <script src="../js/api.js?v=20261008-1"></script>
-    <script src="../js/chipeira.js?v=20261008-7"></script>
+    <script src="../js/chipeira.js?v=20261008-9"></script>
     <script src="../js/financeiro.js?v=20261008-1"></script>
-    <script src="../js/numeros-disponiveis.js?v=20261008-2"></script>
-    <script src="../js/importar-contatos.js?v=20261008-2"></script>
+    <script src="../js/numeros-whatsapp.js?v=20261008-5"></script>
+    <script src="../js/importar-contatos.js?v=20261008-3"></script>
     <script src="../js/animacoes.js?v=20261008-2"></script>
-  </body>
+  <script src="../js/cookies.js?v=20261008-4"></script>
+</body>
 </html>
