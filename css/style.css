@@ -5,21 +5,37 @@
   --border: #dfe7e1;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
-
-/* Movimento: entradas discretas e respostas ao toque. */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.client-link {
+  font-size: 14px;
+  font-weight: 600;
+}
+.client-link:hover {
+  color: #099f59;
+}
+@media (max-width: 700px) {
+  .header-actions {
+    gap: 12px;
+  }
+  .client-link {
+    font-size: 12px;
+  }
+}
 .reveal {
   opacity: 0;
-  transform: translateY(22px);
+  transform: translateY(6px);
   transition:
-    opacity 700ms var(--ease) var(--reveal-delay, 0ms),
-    transform 700ms var(--ease) var(--reveal-delay, 0ms);
+    opacity 280ms var(--ease) var(--reveal-delay, 0ms),
+    transform 280ms var(--ease) var(--reveal-delay, 0ms);
 }
-
 .reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
-
 .button {
   position: relative;
   overflow: hidden;
@@ -29,11 +45,9 @@
     border-color 250ms ease,
     box-shadow 250ms ease;
 }
-
 .button:active {
   transform: translateY(1px) scale(0.98);
 }
-
 .primary::after {
   content: "";
   position: absolute;
@@ -47,26 +61,20 @@
   transform: translateX(-120%);
   pointer-events: none;
 }
-
 .primary:focus-visible::after {
   animation: button-sheen 650ms ease;
 }
-
 .brand {
   transition: color 250ms ease;
 }
-
 .brand:hover {
   color: #099f59;
 }
-
 .summary {
   position: relative;
   overflow: hidden;
-  box-shadow: 0 20px 50px #143a2b12;
   backdrop-filter: blur(12px);
 }
-
 .summary::before {
   content: "";
   position: absolute;
@@ -79,57 +87,46 @@
   animation: pulse-travel 7s ease-in-out infinite;
   pointer-events: none;
 }
-
 .summary div {
   position: relative;
   transition: transform 350ms var(--ease);
 }
-
 input {
   transition:
     border-color 200ms ease,
     box-shadow 200ms ease,
     background-color 200ms ease;
 }
-
 input:focus {
   border-color: #0b9955;
   box-shadow: 0 0 0 4px #12c97512;
 }
-
 .contact:target h2 {
   animation: contact-emphasis 900ms ease;
 }
-
 .status:not([hidden]) {
   animation: feedback-in 250ms var(--ease);
 }
-
 @media (hover: hover) and (pointer: fine) {
   .button:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px #15392c16;
   }
-
   .button:active {
     transform: translateY(1px) scale(0.98);
   }
-
   .primary:hover::after {
     animation: button-sheen 650ms ease;
   }
-
   .summary div:hover {
     transform: translateX(5px);
   }
 }
-
 @keyframes button-sheen {
   to {
     transform: translateX(120%);
   }
 }
-
 @keyframes pulse-travel {
   0%,
   15% {
@@ -140,13 +137,11 @@ input:focus {
     transform: translateY(100%);
   }
 }
-
 @keyframes contact-emphasis {
   40% {
     color: #099f59;
   }
 }
-
 @keyframes feedback-in {
   from {
     opacity: 0;
@@ -157,19 +152,13 @@ input:focus {
     transform: translateY(0);
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
   *,
   *::before,
   *::after {
     animation: none !important;
     transition: none !important;
   }
-
   .reveal {
     opacity: 1;
     transform: none;
@@ -187,10 +176,8 @@ body {
   isolation: isolate;
   font-family: Arial, sans-serif;
   color: var(--ink);
-  background: #fff;
   font-size: 16px;
 }
-
 #dispatch-background {
   position: fixed;
   inset: 0;
@@ -236,8 +223,6 @@ header {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 15px 21px;
-  border-radius: 6px;
   font-size: 14px;
   font-weight: 600;
   border: 1px solid transparent;
@@ -261,47 +246,24 @@ header {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
   align-items: center;
-  gap: 75px;
 }
 .label {
   font-size: 12px;
-  letter-spacing: 1px;
   font-weight: 600;
-  color: var(--muted);
-}
-h1 {
-  font-size: clamp(36px, 4.5vw, 54px);
-  letter-spacing: -2px;
-  line-height: 1.15;
-  margin: 24px 0;
-}
-h1 span {
-  color: #09a75e;
 }
 p {
   color: var(--muted);
   line-height: 1.7;
-}
-.intro p {
-  max-width: 420px;
-  margin-bottom: 28px;
 }
 .summary {
   border-left: 1px solid var(--border);
   padding-left: 35px;
 }
 .summary div {
-  padding: 23px 0;
   display: flex;
   align-items: center;
-  gap: 18px;
-}
-.summary span {
-  font-size: 14px;
-  color: #099952;
 }
 .summary h2 {
-  font-size: 18px;
   font-weight: 500;
   margin: 0;
 }
@@ -313,41 +275,33 @@ p {
   grid-template-columns: 1fr 1fr;
   gap: 100px;
 }
-
 .contact-action {
   align-self: center;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 }
-
 .whatsapp-contact {
   gap: 12px;
   min-width: 190px;
 }
-
 .button {
   border-radius: 999px;
   min-height: 48px;
   line-height: 1.25;
   text-align: center;
 }
-
 .whatsapp-contact svg {
   display: block;
   flex-shrink: 0;
 }
-
 .contact {
   align-items: center;
 }
-
 .contact-action .status {
   margin-bottom: 0;
 }
 .contact h2 {
-  font-size: 32px;
-  letter-spacing: -1px;
   margin: 0 0 16px;
 }
 .contact p {
@@ -363,7 +317,6 @@ label {
   margin-bottom: 8px;
 }
 input {
-  padding: 13px 14px;
   border: 1px solid var(--border);
   border-radius: 6px;
   margin-bottom: 20px;
@@ -405,25 +358,14 @@ footer > span {
     font-size: 12px;
   }
   .hero {
-    padding: 60px 20px;
     grid-template-columns: 1fr;
-    gap: 35px;
-  }
-  h1 {
-    font-size: 40px;
-    letter-spacing: -1.5px;
   }
   .summary {
     padding-left: 20px;
   }
-  .summary div {
-    padding: 14px 0;
-  }
   .contact {
     margin: 0 20px;
-    padding: 40px 0;
     grid-template-columns: 1fr;
-    gap: 20px;
   }
   footer {
     padding: 24px 20px;
@@ -434,8 +376,6 @@ footer > span {
     scroll-behavior: auto;
   }
 }
-
-/* Identidade visual da landing page */
 body {
   background: #fbfcfa;
 }
@@ -461,7 +401,6 @@ header .brand {
   letter-spacing: 1.4px;
 }
 h1 {
-  font-size: clamp(48px, 6.5vw, 78px);
   line-height: 1.04;
   letter-spacing: -4px;
   margin: 25px 0;
@@ -500,22 +439,34 @@ h1 span {
   line-height: 1.5;
 }
 .brand-strip {
-  background: linear-gradient(105deg, #16d27c, #2ce59a);
-  padding: 27px 40px;
+  background: linear-gradient(110deg, #103d2a, #155438);
+  color: #f1fff6;
+  padding: 34px 40px;
+  margin: 0 40px;
+  border: 1px solid #27744d;
+  border-radius: 18px;
+  box-shadow: 0 12px 35px #15392c0c;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
 }
 .brand-strip > span:first-child {
-  font-size: 23px;
-  font-weight: 600;
-  letter-spacing: -0.6px;
+  font-size: clamp(20px, 2.3vw, 29px);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.8px;
+  max-width: 600px;
 }
 .strip-mark {
   font-size: 40px;
   font-weight: 700;
   letter-spacing: -2px;
+  border-left: 1px solid #b8ffd22b;
+  padding-left: 32px;
+}
+.strip-mark > span {
+  color: #31e798;
 }
 .contact {
   border: 0;
@@ -545,10 +496,6 @@ footer {
     padding: 55px 20px;
     gap: 35px;
   }
-  h1 {
-    font-size: 56px;
-    letter-spacing: -2.8px;
-  }
   .intro p {
     font-size: 17px;
   }
@@ -563,6 +510,8 @@ footer {
   }
   .brand-strip {
     padding: 24px 20px;
+    margin: 0 20px;
+    border-radius: 14px;
   }
   .brand-strip > span:first-child {
     font-size: 18px;
@@ -571,77 +520,61 @@ footer {
   }
   .strip-mark {
     font-size: 30px;
+    padding-left: 16px;
   }
   .contact {
     padding: 50px 0;
   }
-  .contact h2 {
-    font-size: 34px;
-  }
 }
-
-/* Layout de toque, inclusive em telas pequenas e na horizontal. */
 @media (max-width: 700px) {
   header {
     gap: 16px;
   }
-
   .hero,
   .contact {
     min-width: 0;
   }
-
   h1 {
     font-size: clamp(42px, 10.8vw, 65px);
     letter-spacing: -0.045em;
     line-height: 1.08;
   }
-
   .label {
     max-width: 100%;
     font-size: 11px;
     line-height: 1.6;
     letter-spacing: 0.7px;
   }
-
   .intro > .button,
   .whatsapp-contact {
     width: 100%;
     min-height: 52px;
     font-size: 16px;
   }
-
   .summary {
     border-radius: 14px;
   }
-
   .brand-strip {
     gap: 14px;
   }
-
   .strip-mark {
     flex-shrink: 0;
   }
-
   .contact {
     gap: 16px;
   }
-
   .contact h2 {
     font-size: clamp(28px, 7.5vw, 36px);
     line-height: 1.2;
   }
-
   .contact p {
     margin-bottom: 0;
   }
-
   .contact-action {
     width: 100%;
     align-items: stretch;
   }
 }
-
 @media (max-width: 360px) {
   header,
   .hero,
@@ -649,18 +582,28 @@ footer {
     padding-left: 16px;
     padding-right: 16px;
   }
-
   .contact {
     margin-left: 16px;
     margin-right: 16px;
   }
-
   header .button {
     min-height: 44px;
   }
-
   .brand-strip {
     padding-left: 16px;
     padding-right: 16px;
   }
+}
+h1 {
+  font-size: clamp(42px, 5.7vw, 74px);
+}
+#dispatch-background {
+  opacity: 0.65;
+}
+.summary {
+  box-shadow: none;
+}
+.summary::before,
+.primary::after {
+  display: none;
 }

@@ -3,7 +3,7 @@
 const contactNumber = "";
 const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
 const revealElements = document.querySelectorAll(
-  ".intro > *, .summary, .brand-strip, .contact > *, footer",
+  ".intro > *, .summary, .landing-prices, .brand-strip, .contact > *, footer",
 );
 
 if (!motionPreference.matches && "IntersectionObserver" in window) {
@@ -20,7 +20,7 @@ if (!motionPreference.matches && "IntersectionObserver" in window) {
   );
 
   revealElements.forEach((element, index) => {
-    element.style.setProperty("--reveal-delay", `${Math.min(index, 4) * 75}ms`);
+    element.style.setProperty("--reveal-delay", `${Math.min(index, 3) * 40}ms`);
     element.classList.add("reveal");
     observer.observe(element);
   });

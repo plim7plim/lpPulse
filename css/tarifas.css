@@ -1,0 +1,33 @@
+.pricing-panel { margin-top: 28px; }
+.pricing-label { color: var(--muted); font-size: 11px; }
+.pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.pricing-group h3 { font-size: 14px; margin: 8px 0 16px; min-height: 44px; }
+.pricing-group h3 span { display: block; margin-top: 5px; font-size: 11px; font-weight: 400; color: var(--muted); }
+.table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.price-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; font-variant-numeric: tabular-nums; }
+.price-table th, .price-table td { padding: 13px 14px; white-space: nowrap; border-bottom: 1px solid var(--line); }
+.price-table thead { background: var(--soft); }
+.price-table thead th { font-weight: 600; }
+.price-table tbody th { font-weight: 400; }
+.price-table tbody tr { transition: background .2s; }
+.price-table tbody tr:hover { background: var(--soft); }
+.price-table tbody tr:last-child > * { border-bottom: 0; }
+.pricing-example, .pricing-note { font-size: 11px; margin: 14px 0 0; }
+.pricing-note { border-top: 1px solid var(--line); padding-top: 18px; margin-top: 24px; }
+.landing-prices { --line: var(--border); --soft: #edf7f0; margin: 0 40px 64px; padding: 32px; border: 1px solid var(--line); border-radius: 18px; background: #ffffffed; }
+.pricing-link { display: block; width: fit-content; margin-top: 20px; font-size: 13px; color: var(--muted); }
+.pricing-link:hover { color: #099f59; }
+#pacotes { scroll-margin-top: 24px; }
+.landing-prices .service-panel-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.landing-prices h2 { margin: 0; font-size: 26px; letter-spacing: -.7px; }
+.landing-prices .pricing-label { font-size: 12px; }
+.landing-prices .pricing-label:hover { color: #099f59; }
+.landing-prices .price-table { font-size: 14px; }
+.landing-prices .pricing-note { font-size: 13px; }
+@media (max-width: 760px) {
+  .pricing-grid { grid-template-columns: 1fr; gap: 24px; }
+  .landing-prices { margin: 0 20px 40px; padding: 24px 18px; }
+  .landing-prices .service-panel-top { align-items: flex-start; flex-direction: column; gap: 10px; }
+  .landing-prices h2 { font-size: 23px; }
+  .landing-prices .price-table { font-size: 12px; }
+}

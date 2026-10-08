@@ -1,0 +1,463 @@
+.service-view {
+  min-width: 0;
+}
+.service-heading {
+  margin-bottom: 18px;
+}
+.service-heading h1 {
+  font-size: 25px;
+  letter-spacing: -0.8px;
+  margin: 0 0 7px;
+}
+.service-heading p,
+.service-description {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0 0 18px;
+}
+.service-demo-note {
+  padding: 11px 14px;
+  color: #436956;
+  background: #eaf8ef;
+  border: 1px solid #d4edde;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 0 0 20px;
+}
+.service-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.service-panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 18px;
+  min-width: 0;
+}
+.service-panel h2 {
+  font-size: 17px;
+  letter-spacing: -0.35px;
+  margin: 0 0 12px;
+}
+.service-panel h3 {
+  margin: 0 0 12px;
+  font-size: 17px;
+}
+.service-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.service-field {
+  min-width: 0;
+}
+.service-field label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.service-field input,
+.service-field select,
+.service-field textarea,
+.service-inventory-controls input,
+.service-inventory-controls select,
+.service-orders-controls input,
+.service-orders-controls select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 11px 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 13px;
+  min-height: 43px;
+  margin: 0;
+}
+.service-field input:focus,
+.service-field textarea:focus,
+.service-field select:focus {
+  outline: 2px solid #12c97566;
+  border-color: var(--green);
+}
+.service-field textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+.service-field-wide {
+  grid-column: 1 / -1;
+}
+.service-form > .button {
+  margin-top: 20px;
+}
+.service-feedback {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.6;
+}
+.service-feedback:empty {
+  display: none;
+}
+.service-panel-top {
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  align-items: center;
+}
+.service-link {
+  border: 0;
+  padding: 7px 8px;
+  background: transparent;
+  color: #138c54;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+.service-link:hover {
+  background: #12c97515;
+}
+.service-history-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.service-history-row > div {
+  flex: 1;
+}
+.service-history-row strong {
+  display: block;
+  font-size: 12px;
+}
+.service-history-row small {
+  color: var(--muted);
+  font-size: 11px;
+  display: block;
+  margin-top: 5px;
+}
+.service-state {
+  border-radius: 20px;
+  color: #19814e;
+  background: #e8f7ed;
+  font-size: 11px;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+.service-state.is-cancelled {
+  color: var(--muted);
+  background: var(--surface);
+}
+.service-empty-small {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 16px 0 0;
+}
+.service-inventory {
+  text-align: center;
+  padding: 42px 24px;
+}
+.service-empty-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: #eaf7ef;
+  color: #14a965;
+  display: grid;
+  place-items: center;
+  font-size: 40px;
+  margin: 0 auto 18px;
+}
+.service-inventory p {
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 500px;
+  line-height: 1.7;
+  margin: 0 auto 22px;
+}
+.service-inventory-controls {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(200px, 0.5fr);
+  gap: 12px;
+}
+.service-consent {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 18px 0;
+}
+.service-consent input {
+  accent-color: var(--green);
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  margin: 2px 0 0;
+  padding: 0;
+  min-height: 0;
+}
+.service-message-counter {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 12px 0;
+}
+.service-orders-controls {
+  display: grid;
+  grid-template-columns:
+    minmax(180px, 1.5fr) minmax(140px, 1fr) minmax(140px, 1fr)
+    auto;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.service-orders-controls .button {
+  min-height: 43px;
+  padding: 11px 15px;
+  font-size: 12px;
+}
+.service-orders-output {
+  overflow-x: auto;
+}
+.service-orders-output table {
+  min-width: 700px;
+}
+.service-orders-output th,
+.service-orders-output td {
+  padding: 14px 12px;
+  font-size: 12px;
+}
+.service-row-actions {
+  white-space: normal;
+  min-width: 150px;
+}
+.service-cancel-confirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  padding: 8px;
+  background: var(--surface);
+  border-radius: 8px;
+}
+.service-detail-dialog {
+  padding: 28px;
+  width: min(620px, calc(100% - 32px));
+  max-height: 85dvh;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  border-radius: 20px;
+  overflow-y: auto;
+}
+.service-detail-dialog::backdrop {
+  background: #061b1590;
+  backdrop-filter: blur(5px);
+}
+.service-detail-body h2 {
+  font-size: 22px;
+  margin: 0 0 12px;
+}
+.service-detail-list {
+  display: grid;
+  grid-template-columns: minmax(100px, 0.6fr) minmax(0, 1.5fr);
+  gap: 0;
+  margin: 0 0 20px;
+}
+.service-detail-list dt,
+.service-detail-list dd {
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.service-detail-list dt {
+  color: var(--muted);
+  padding-right: 15px;
+}
+.service-wizard-progress {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  padding: 0;
+  list-style: none;
+  gap: 6px;
+  margin: 22px 0 26px;
+}
+.service-wizard-progress li {
+  padding: 9px 5px;
+  font-size: 10px;
+  text-align: center;
+  border-bottom: 3px solid var(--line);
+  color: var(--muted);
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.service-wizard-progress .is-current {
+  color: #15965b;
+  font-weight: 700;
+  border-color: var(--green);
+  background: #12c9750d;
+}
+.service-wizard-progress .is-complete {
+  border-color: #98ddae;
+}
+.service-wizard-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 22px;
+}
+[data-theme="dark"] .service-panel,
+[data-theme="dark"] .service-detail-dialog {
+  background: #19251e;
+  border-color: #2a3b30;
+}
+[data-theme="dark"] .service-demo-note {
+  background: #193324;
+  border-color: #2c5038;
+  color: #9cc9ac;
+}
+[data-theme="dark"] .service-state,
+[data-theme="dark"] .service-empty-icon {
+  background: #203e2b;
+  color: #a6dfb3;
+}
+[data-theme="dark"] .service-state.is-cancelled {
+  background: #2b302c;
+  color: #adb5ae;
+}
+[data-theme="dark"] .service-link,
+[data-theme="dark"] .service-wizard-progress .is-current {
+  color: #9ee1aa;
+}
+[data-theme="dark"] .service-field input,
+[data-theme="dark"] .service-field select,
+[data-theme="dark"] .service-field textarea,
+[data-theme="dark"] .service-inventory-controls input,
+[data-theme="dark"] .service-inventory-controls select,
+[data-theme="dark"] .service-orders-controls input,
+[data-theme="dark"] .service-orders-controls select {
+  background: #142019;
+  border-color: #35493c;
+  color: #e3eee7;
+}
+@media (max-width: 1000px) {
+  .service-orders-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+  .service-wizard-progress {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 800px) {
+  .service-layout {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 550px) {
+  .service-panel {
+    padding: 18px;
+    border-radius: 12px;
+  }
+  .service-fields,
+  .service-inventory-controls,
+  .service-orders-controls {
+    grid-template-columns: 1fr;
+  }
+  .service-heading h1 {
+    font-size: 23px;
+  }
+  .service-history-row {
+    flex-wrap: wrap;
+  }
+  .service-history-row > div {
+    flex-basis: 100%;
+  }
+  .service-panel-top {
+    align-items: start;
+  }
+  .service-detail-dialog {
+    padding: 20px;
+  }
+  .service-detail-list {
+    grid-template-columns: 1fr;
+  }
+  .service-detail-list dt {
+    padding-bottom: 0;
+    border: 0;
+  }
+  .service-detail-list dd {
+    padding-top: 4px;
+  }
+  .service-wizard-actions .button {
+    padding: 12px 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .service-view *,
+  .service-detail-dialog {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+.chip-panel {
+  margin-bottom: 20px;
+}
+.chip-number-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line, #d6e2dc);
+}
+.chip-number-row > div {
+  flex: 1;
+  min-width: 190px;
+}
+.chip-number-row small {
+  display: block;
+  margin-top: 6px;
+}
+.chip-field {
+  display: grid;
+  gap: 8px;
+}
+.chip-field input,
+.chip-field textarea,
+.chip-field select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--line, #d6e2dc);
+  border-radius: 8px;
+  color: inherit;
+  background: var(--surface, transparent);
+  font: inherit;
+}
+.chip-message {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.chip-message-row {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line, #d6e2dc);
+}
+.chip-inbox:not(:empty) {
+  margin-top: 24px;
+}
+.chip-detail {
+  max-height: 80vh;
+  overflow: auto;
+}

@@ -1,0 +1,36 @@
+<?php
+declare(strict_types=1);
+require_once __DIR__.'/../src/ChipeiraGateway.php';
+use Pulse\ChipeiraGateway;
+use Pulse\PanelError;
+$count=0;
+function check(bool $condition,string $message): void { global $count; if (!$condition) throw new RuntimeException($message); $count++; }
+function fails(callable $fn,string $code): void { try { $fn(); } catch (PanelError $error) { check($error->errorCode===$code,'Wrong rejection'); return; } throw new RuntimeException('Expected rejection'); }
+$config=['enabled'=>true,'api_key'=>str_repeat('k',40),'base_url'=>'https://chips.example.com'];
+$calls=[];
+$transport=function($url,$method,$body,$headers,$raw) use (&$calls) { $calls[]=compact('url','method','body','headers'); return ['success'=>true,'phones'=>[]]; };
+$gateway=new ChipeiraGateway($config,$transport);
+$gateway->handle('42','GET',['op'=>'phones','company_id'=>'99','api_key'=>'attacker']);
+check(in_array('x-pulse-company: 42',$calls[0]['headers'],true),'Session company used');
+check(!in_array('x-pulse-company: 99',$calls[0]['headers'],true),'Input company ignored');
+check($calls[0]['url']==='https://chips.example.com/api/integration/pulse/phones','Scoped API');
+check(in_array('x-api-key: '.str_repeat('k',40),$calls[0]['headers'],true),'Private credential');
+fails(fn()=> $gateway->handle('42','GET',['op'=>'../../slots']),'invalid_operation');
+fails(fn()=> $gateway->handle('42','POST',['op'=>'create','request_id'=>'request-test-1234','consent'=>false]),'invalid_dispatch');
+fails(fn()=> $gateway->handle('42','GET',['op'=>'messages','number'=>'../other']),'invalid_number');
+fails(fn()=> $gateway->handle('42','GET',['op'=>'campaign','id'=>'1/../../']),'invalid_id');
+$payload=['op'=>'create','request_id'=>'request-test-1234','consent'=>true,'name'=>'Campanha','message'=>'Mensagem','recipients'=>['+5511999998888'],'from'=>['+5511999997777'],'company_id'=>'99'];
+$gateway->handle('42','POST',$payload);
+check(end($calls)['body']['requestId']==='request-test-1234','Idempotency forwarded');
+check(!isset(end($calls)['body']['company_id']),'Company cannot be injected');
+fails(fn()=> $gateway->handle('42','POST',array_merge($payload,['recipients'=>array_fill(0,501,'+5511999998888')])),'invalid_dispatch');
+fails(fn()=> ChipeiraGateway::validateBaseUrl('https://user:password@host.com'),'invalid_gateway_url');
+fails(fn()=> ChipeiraGateway::validateBaseUrl('http://192.168.0.1'),'invalid_gateway_url');
+fails(fn()=> ChipeiraGateway::validateBaseUrl('https://host.com/anything'),'invalid_gateway_url');
+check(ChipeiraGateway::validateBaseUrl('http://127.0.0.1:3001',true)==='http://127.0.0.1:3001','Explicit local HTTP');
+$disabled=new ChipeiraGateway([]);
+check($disabled->handle('1','GET',['op'=>'status'])['connected']===false,'Disabled status');
+fails(fn()=> $disabled->handle('1','POST',$payload),'chipeira_not_configured');
+$discovery=new ChipeiraGateway(['enabled'=>true,'api_key'=>str_repeat('k',40)],fn($url,$verb,$body,$headers,$raw)=>$raw?'window.__CHIPEIRA_API_URL__ = "https://evil.example.com";':['success'=>true]);
+fails(fn()=> $discovery->handle('42','GET',['op'=>'phones']),'invalid_gateway_url');
+echo "Chipeira gateway: $count checks passed\n";
