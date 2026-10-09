@@ -2,6 +2,10 @@
 
 Integração SMS com a chipeira: configuração, telas e limites em [docs/chipeira.md](docs/chipeira.md).
 
+Cobrança de disparos, administração e publicação na Locaweb: [docs/producao.md](docs/producao.md).
+Cadastro com confirmação de e-mail e recuperação de senha: [docs/cadastro-senha.md](docs/cadastro-senha.md).
+Banco existente precisa das migrações `006_sms_billing_admin.sql` e `007_registration.sql`; banco vazio usa `schema.sql` atualizado.
+
 ## Estrutura
 
 - `index.html`: landing page.
@@ -24,12 +28,12 @@ Contas, dados e comandos em [docs/banco-local.md](docs/banco-local.md).
 
 O script inicia PHP e MariaDB locais. Para encerrar, execute
 `.\scripts\stop-local.ps1`. Configuração e contratos em `docs/pulse-api.md`.
-O login e os dados do painel usam a API PHP; a demonstração estática continua
-disponível no frontend, mas não se comunica com a chipeira.
-O número de atendimento deve ser configurado em `js/clientes.js`.
+O login e os dados do painel usam a API PHP. Disparos pela chipeira são reais;
+a conta local de teste tem cobrança desativada explicitamente.
+O número de atendimento da landing deve ser configurado em `js/app.js`.
 Pagamentos reais dependem do provedor e da configuração documentada no backend.
 
-Para hospedar, servir a raiz preservando esta estrutura de pastas. Não publicar
-credenciais ou configuração privada; `backend/config.example.php` é somente modelo.
-Identidade do painel em `css/painel.css`. A limpeza técnica e os arquivos
+Para hospedar, gere o pacote com `scripts/build-production.ps1` e publique apenas
+`public/`. A pasta `private/`, credenciais e banco devem permanecer fora do webroot.
+Identidade do painel em `css/clientes.css`. A limpeza técnica e os arquivos
 retirados estão registrados em [docs/limpeza-tecnica.md](docs/limpeza-tecnica.md).

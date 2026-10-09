@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer"><meta name="robots" content="noindex">
+  <title>Sua conta · Pulse</title>
+  <link rel="icon" href="../assets/favicon.svg"><script src="../js/tema.js"></script>
+  <link rel="stylesheet" href="../css/clientes.css?v=20261009-2">
+</head>
+<body>
+  <main class="login-layout">
+    <section class="login-brand"><a class="brand" href="../index.html">pulse<span>.</span></a><div><p class="eyebrow">MENSAGENS PARA SUA EMPRESA</p><h1>Sua próxima conversa<br>começa aqui.</h1><p>Crie sua conta e organize os envios da sua empresa.</p></div><small>Área do cliente</small></section>
+    <section class="login-content">
+      <button type="button" data-theme-toggle class="theme-toggle" aria-label="Alternar tema">☾</button>
+      <div class="login-card auth-card">
+        <a class="auth-back" href="clientes.html">← Voltar para entrar</a>
+        <h2 id="access-title">Crie sua conta</h2><p id="access-description">Confirme seu e-mail e defina sua senha pelo link que vamos enviar.</p>
+        <form id="register-form" hidden>
+          <label for="register-name">Seu nome</label><input id="register-name" autocomplete="name" maxlength="191" required>
+          <label for="register-company">Empresa ou nome do negócio</label><input id="register-company" autocomplete="organization" maxlength="191" required>
+          <label for="register-email">E-mail</label><input id="register-email" type="email" autocomplete="email" maxlength="254" required>
+          <button class="button primary" type="submit">Enviar link de cadastro</button>
+        </form>
+        <form id="forgot-form" hidden>
+          <label for="forgot-email">E-mail da sua conta</label><input id="forgot-email" type="email" autocomplete="email" maxlength="254" required>
+          <button class="button primary" type="submit">Enviar link de recuperação</button>
+        </form>
+        <form id="new-password-form" hidden>
+          <label for="new-password">Nova senha</label><input id="new-password" type="password" autocomplete="new-password" minlength="12" maxlength="72" aria-describedby="password-help" required>
+          <small id="password-help">Use pelo menos 12 caracteres. Prefira uma frase que só você conhece.</small>
+          <label for="confirm-password">Confirmar senha</label><input id="confirm-password" type="password" autocomplete="new-password" minlength="12" maxlength="72" required>
+          <label class="auth-show"><input id="access-show-password" type="checkbox">Mostrar senhas</label>
+          <button id="save-password" class="button primary" type="submit">Salvar senha</button>
+        </form>
+        <p id="access-feedback" class="service-feedback" role="status" tabindex="-1"></p>
+        <a id="access-success" class="button primary" href="clientes.html" hidden>Entrar na minha conta</a>
+        <div class="auth-links"><a href="#cadastro">Criar conta</a><a href="#recuperar">Recuperar senha</a></div>
+      </div>
+    </section>
+  </main>
+  <script src="../js/acesso.js?v=20261009-1"></script>
+</body>
+</html>

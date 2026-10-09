@@ -47,6 +47,7 @@
     view.setAttribute("aria-busy", "true");
     byId("finance-feedback").textContent = "Carregando financeiro…";
     try {
+      if (api().session.role !== "viewer") await api().request("sms_reconcile", {}, "POST");
       const [balance, requests, invoices, billing] = await Promise.all(["balance", "credit_requests", "invoices", "billing_preferences"].map(action => api().request(action)));
       if (current !== epoch) return;
       byId("finance-balance").textContent = money(balance.balance);

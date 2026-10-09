@@ -19,6 +19,11 @@
     Object.entries(values).forEach(([id, value]) => { byId(id).textContent = value || ""; });
     byId("environment-note").hidden = !session.test_environment;
     byId("account-feedback").hidden = true;
+    byId("admin-nav").hidden = !session.is_admin;
+    if (!session.is_admin) {
+      byId("admin-view").hidden = true;
+      if (location.hash === "#admin") location.hash = "sms-marketing";
+    }
     if (!session.authenticated) document.querySelectorAll("dialog[open]").forEach(dialog => dialog.close());
     window.dispatchEvent(new CustomEvent("pulse-api-mode", { detail: { mode: api.mode } }));
   }
@@ -39,6 +44,7 @@
     if (!response.ok || !result.ok) {
       const error = new Error(result.error?.message || "Não foi possível concluir a operação.");
       error.code = result.error?.code;
+      error.status = response.status;
       if (error.code === "unauthenticated") sessionChanged({ authenticated: false });
       throw error;
     }

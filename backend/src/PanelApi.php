@@ -3,6 +3,8 @@ declare(strict_types=1);
 namespace Pulse;
 require_once __DIR__.'/PanelValidation.php';
 require_once __DIR__.'/ChipeiraGateway.php';
+require_once __DIR__.'/SmsBilling.php';
+require_once __DIR__.'/AdminApi.php';
 
 final class PanelApi {
     private \PDO $db;
@@ -10,9 +12,11 @@ final class PanelApi {
     private ?array $session = null;
     private string $token = '';
     private array $chipeira;
-    public function __construct(\PDO $db, string $secret, array $chipeira = []) {
+    private array $admins;
+    public function __construct(\PDO $db, string $secret, array $chipeira = [], array $admins = []) {
         $this->db = $db; $this->secret = $secret;
         $this->chipeira = $chipeira;
+        $this->admins = array_map('strval',$admins);
     }
     private function query(string $sql, array $params = []): \PDOStatement {
         $statement = $this->db->prepare($sql); $statement->execute($params); return $statement;
@@ -41,7 +45,7 @@ final class PanelApi {
     private function company(): string { return (string)$this->session['company_id']; }
     public function sessionInfo(): array {
         if (!$this->session) return ['authenticated' => false];
-        return ['authenticated'=>true,'user'=>['id'=>(string)$this->session['user_id'],'name'=>$this->session['user_name'],'email'=>$this->session['email']], 'company'=>['id'=>$this->company(),'name'=>$this->session['company_name']], 'role'=>$this->session['role'],'csrf_token'=>$this->csrfToken(),'uploads_available'=>false];
+        return ['authenticated'=>true,'is_admin'=>in_array($this->user(),$this->admins,true),'user'=>['id'=>(string)$this->session['user_id'],'name'=>$this->session['user_name'],'email'=>$this->session['email']], 'company'=>['id'=>$this->company(),'name'=>$this->session['company_name']], 'role'=>$this->session['role'],'csrf_token'=>$this->csrfToken(),'uploads_available'=>false];
     }
     public function login(array $data, string $ip): string {
         $email = PanelValidation::email($data, 'email');
@@ -89,7 +93,19 @@ final class PanelApi {
         }
         if ($action==='chipeira') {
             if ($method==='POST') $this->requireRole(['owner','manager','operator']);
+            $billing=new SmsBilling($this->db,new ChipeiraGateway($this->chipeira));
+            if (($data['op']??'')==='quote' && $method==='POST') return $billing->estimate($this->company(),$data);
+            if (($data['op']??'')==='create' && $method==='POST') return $billing->create($this->company(),$data);
             return (new ChipeiraGateway($this->chipeira))->handle($this->company(),$method,$data);
+        }
+        if ($action==='admin') {
+            if (!in_array($this->user(),$this->admins,true)) throw new PanelError('forbidden','Acesso restrito à administração Pulse.',403);
+            return (new AdminApi($this->db,$this->user(),$this->chipeira))->handle($method,$data);
+        }
+        if ($action==='sms_reconcile') {
+            if ($method!=='POST') throw new PanelError('method_not_allowed','Use POST.',405);
+            $this->requireRole(['owner','manager','operator']);
+            return (new SmsBilling($this->db,new ChipeiraGateway($this->chipeira)))->reconcile($this->company());
         }
         if (in_array($action, ['billing_preferences','credit_requests','invoices','balance'], true)) {
             if (!in_array($method, ['GET','POST'], true)) throw new PanelError('method_not_allowed','Use GET ou POST.',405);

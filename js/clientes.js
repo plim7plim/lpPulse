@@ -3,7 +3,7 @@
   const dashboard = document.getElementById("dashboard");
   const sidebar = dashboard.querySelector(".sidebar");
   const menu = document.getElementById("menu-toggle");
-  const names = { "sms-marketing": "Enviar SMS", "whatsapp-numbers": "Comprar números", campaigns: "Campanhas", finance: "Financeiro", account: "Minha conta" };
+  const names = { "sms-marketing": "Enviar SMS", "whatsapp-numbers": "Comprar números", campaigns: "Campanhas", finance: "Financeiro", account: "Minha conta", admin: "Administração" };
   function closeMenu() {
     dashboard.classList.remove("menu-open");
     menu.setAttribute("aria-expanded", "false");
@@ -11,6 +11,7 @@
   }
   function setView(view) {
     if (!Object.hasOwn(names, view)) view = "sms-marketing";
+    if (view === "admin" && window.PulseAPI?.mode === "server" && !window.PulseAPI.session.is_admin) view = "sms-marketing";
     history.replaceState(null, "", "#" + view);
     Object.keys(names).forEach(name => {
       document.getElementById(name + "-view").hidden = name !== view;

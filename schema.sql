@@ -1,4 +1,4 @@
--- Pulse | Estrutura inicial v5 | MySQL 5.6.5+ / MariaDB 10.1+
+-- Pulse | Estrutura inicial v7 | MySQL 5.6.5+ / MariaDB 10.1+
 -- Selecione o banco criado na Locaweb antes de importar pelo phpMyAdmin.
 -- Execute UMA VEZ em um banco vazio. Não contém DROP, credenciais ou dados fictícios.
 -- InnoDB + utf8mb4_unicode_ci; sem JSON nativo, CHECK, triggers ou privilégios especiais.
@@ -447,4 +447,52 @@ CREATE TABLE auth_login_attempts (
     window_started_at DATETIME NOT NULL,
     PRIMARY KEY (attempt_key),
     KEY idx_login_window (window_started_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Cobrança de SMS e administração
+CREATE TABLE IF NOT EXISTS sms_billing_accounts (
+ company_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+ rate_mills INT UNSIGNED NOT NULL DEFAULT 50,
+ unlimited TINYINT UNSIGNED NOT NULL DEFAULT 0,
+ FOREIGN KEY (company_id) REFERENCES companies(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS sms_charges (
+ id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ company_id BIGINT UNSIGNED NOT NULL,
+ request_id VARCHAR(80) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ payload_hash CHAR(64) CHARACTER SET ascii NOT NULL,
+ payload TEXT NOT NULL,
+ remote_id BIGINT UNSIGNED NULL,
+ rate_mills INT UNSIGNED NOT NULL,
+ segments INT UNSIGNED NOT NULL,
+ recipients INT UNSIGNED NOT NULL,
+ reserved_cents BIGINT UNSIGNED NOT NULL,
+ charged_cents BIGINT UNSIGNED NULL,
+ status ENUM('reserved','running','settled','rejected') NOT NULL DEFAULT 'reserved',
+ created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+ UNIQUE KEY uq_sms_request(company_id,request_id),
+ KEY idx_sms_status(status,id),
+ FOREIGN KEY (company_id) REFERENCES companies(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS admin_events (
+ id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ user_id BIGINT UNSIGNED NOT NULL,
+ action VARCHAR(64) NOT NULL,
+ details TEXT NOT NULL,
+ created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Cadastro com confirmação de e-mail
+CREATE TABLE IF NOT EXISTS email_verification_tokens (
+ id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+ user_id BIGINT UNSIGNED NOT NULL,
+ token_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+ expires_at DATETIME NOT NULL,
+ used_at DATETIME NULL,
+ created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ UNIQUE KEY uq_email_verification_token(token_hash),
+ KEY idx_email_verification_user(user_id),
+ FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -115,7 +115,7 @@
   form.addEventListener("input", () => {
     requestId = null;
   });
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!connected || !canSend() || !form.reportValidity() || dispatching)
       return;
@@ -147,17 +147,24 @@
       recipients,
       consent: consent.checked,
     };
+    submit.disabled = true;
+    try {
+    const quote = await call("quote", reviewedPayload, "POST");
+    reviewedPayload.expected_cents = quote.reserved_cents;
+    const money = cents => (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
     summary.replaceChildren(
       node("p", `${reviewedPayload.name} · ${recipients.length} destinatários`),
       node("p", "Distribuição automática entre os slots online da chipeira (até 64)."),
       node("p", reviewedPayload.message, "chip-message"),
       node(
         "p",
-        "Ao confirmar, a chipeira inicia os envios reais de SMS. O saldo do Pulse ainda não é debitado por esta integração.",
+        quote.unlimited ? "Conta sem cobrança de disparos." : `${quote.segments} SMS por contato · tarifa R$ ${(quote.rate_mills / 1000).toFixed(3)}. Reserva: ${money(quote.reserved_cents)}. Saldo disponível: ${money(quote.balance_cents)}. A parte não enviada é devolvida após a conferência.`,
       ),
     );
-    send.disabled = false;
+    send.disabled = !quote.unlimited && quote.balance_cents < quote.reserved_cents;
     review.showModal();
+    } catch (error) { feedback.textContent = error.message; }
+    finally { submit.disabled = !connected || !canSend(); }
   });
   async function sendCampaign() {
     if (dispatching || !reviewedPayload || !connected || !canSend()) return;
@@ -176,7 +183,11 @@
     } catch (error) {
       if (current === epoch) {
         review.close();
-        feedback.textContent = `${error.message} Repetir a mesma revisão usa o mesmo identificador e evita duplicar a campanha.`;
+        if ([400, 404, 409, 422].includes(error.status)) {
+          requestId = null;
+          reviewedPayload = null;
+          feedback.textContent = error.message;
+        } else feedback.textContent = `${error.message} Repetir a mesma revisão usa o mesmo identificador e evita duplicar a campanha.`;
       }
     } finally {
       dispatching = false;
@@ -279,6 +290,7 @@
         campaignList.replaceChildren();
         return;
       }
+      if (canSend()) await api().request("sms_reconcile", {}, "POST");
       const [inventory, history] = await Promise.all([
         call("phones"),
         call("campaigns"),

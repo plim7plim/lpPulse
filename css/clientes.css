@@ -256,3 +256,24 @@ dialog::backdrop { background: #08171099; }
 .number-order-actions p { margin:0; font-size:13px; font-weight:600; }
 .sr-only { position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap; }
 @media(max-width:760px) { .number-order-guide { grid-template-columns:1fr;gap:14px; } .number-order-actions { flex-direction:column;align-items:stretch; } }
+
+#admin-view > .service-panel { margin-top: 20px; }
+#admin-view td { vertical-align: top; }
+#admin-view td p { margin: 6px 0; font-size: 13px; }
+#admin-view input[type="number"] { width: 108px; padding: 9px; border: 1px solid var(--line); border-radius: 8px; color: inherit; background: var(--bg); }
+#admin-view .module-actions { min-width: 170px; gap: 8px; flex-wrap: wrap; }
+#admin-view .module-actions label { display: flex; align-items: center; gap: 8px; }
+#admin-confirm label { display: grid; gap: 10px; margin-block: 20px; }
+#admin-confirm input { width: 100%; padding: 12px; border: 1px solid var(--line); border-radius: 10px; color: inherit; background: var(--bg); }
+
+.auth-links { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin-top: 24px; font-size: 13px; }
+.auth-links a, .auth-back { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; transition: color .2s; }
+.auth-links a:hover, .auth-back:hover { color: var(--green); }
+.auth-back { display: inline-block; margin-bottom: 24px; font-size: 13px; }
+.auth-card form { display: grid; gap: 12px; animation: pulse-enter .25s var(--ease) both; }
+.auth-card form > label:not(:first-child) { margin-top: 6px; }
+.auth-card form > .button { margin-top: 10px; }
+.auth-card .auth-show { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.auth-card .auth-show input { width: 18px; height: 18px; margin: 0; }
+.auth-card small { font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { .auth-card form { animation: none; } }

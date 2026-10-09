@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__.'/src/PanelApi.php';
+require_once __DIR__.'/src/AccountAccess.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -39,10 +40,13 @@ try {
     if (!is_string($action) || !preg_match('/^[a-z_]{1,32}$/D',$action)) throw new \Pulse\PanelError('invalid_action','Recurso inválido.',400);
     $db=new PDO($config['dsn'],$config['username'],$config['password']??'',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION,PDO::ATTR_EMULATE_PREPARES=>false,PDO::ATTR_STRINGIFY_FETCHES=>true]);
     $db->exec("SET time_zone = '+00:00'");
-    $api=new \Pulse\PanelApi($db,$config['api_secret'],$config['chipeira']??[]);
+    $api=new \Pulse\PanelApi($db,$config['api_secret'],$config['chipeira']??[],$config['admin_user_ids']??[]);
     $token=$_COOKIE['pulse_session']??'';
     if (is_string($token)) $api->authenticate($token);
-    if ($action==='login') {
+    if (in_array($action,['register','forgot_password','verify_email','reset_password'],true)) {
+        if ($method!=='POST') throw new \Pulse\PanelError('method_not_allowed','Use POST.',405);
+        $result=(new \Pulse\AccountAccess($db,$config))->handle($action,$data,$_SERVER['REMOTE_ADDR']??'unknown');
+    } elseif ($action==='login') {
         if ($method!=='POST') throw new \Pulse\PanelError('method_not_allowed','Use POST.',405);
         $token=$api->login($data,$_SERVER['REMOTE_ADDR']??'unknown'); panelCookie($token,$secure); $result=$api->sessionInfo();
     } else {

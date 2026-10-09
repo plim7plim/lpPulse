@@ -8,7 +8,13 @@ return [
     'password'=>'',
     'api_secret'=>'',
     'api_origin'=>'https://seu-dominio.com.br',
+    'public_root'=>'', // Caminho absoluto da pasta pública, usado pelo verificador CLI.
     'cookie_secure'=>true,
+    'admin_user_ids'=>[], // IDs de administradores da plataforma; proprietário de cliente não é administrador.
+    'auth_mail'=>[
+        'transport'=>'mail', // Envio via mail() do PHP; habilite no servidor e valide entrega.
+        'from'=>'', // E-mail do seu domínio, autorizado pela hospedagem.
+    ],
     'merchant_id'=>'',
     'gateway'=>null,
     'chipeira'=>[
