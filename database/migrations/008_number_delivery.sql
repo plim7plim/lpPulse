@@ -1,0 +1,35 @@
+CREATE TABLE IF NOT EXISTS number_fulfillments (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    company_id BIGINT UNSIGNED NOT NULL,
+    service_request_id BIGINT UNSIGNED NOT NULL,
+    amount_cents BIGINT UNSIGNED NOT NULL,
+    version INT UNSIGNED NOT NULL DEFAULT 1,
+    quote_note VARCHAR(500) NOT NULL,
+    status ENUM('quoted','paid','completed','cancelled') NOT NULL DEFAULT 'quoted',
+    paid_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_number_order(service_request_id),
+    UNIQUE KEY uq_number_order_company(company_id,id),
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (service_request_id) REFERENCES service_requests(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS number_inventory (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    phone VARCHAR(20) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    slot SMALLINT UNSIGNED NOT NULL,
+    type ENUM('sms','whatsapp') NOT NULL,
+    verification_note VARCHAR(500) NOT NULL,
+    status ENUM('available','allocated','activating','delivered','failed','retired') NOT NULL DEFAULT 'available',
+    company_id BIGINT UNSIGNED NULL,
+    fulfillment_id BIGINT UNSIGNED NULL,
+    delivery_key CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NULL,
+    item_cents BIGINT UNSIGNED NULL,
+    last_error VARCHAR(500) NULL,
+    delivered_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_inventory_phone(phone),
+    UNIQUE KEY uq_inventory_delivery_key(delivery_key),
+    KEY idx_inventory_available(type,status,id),
+    KEY idx_inventory_order(company_id,fulfillment_id),
+    FOREIGN KEY (company_id,fulfillment_id) REFERENCES number_fulfillments(company_id,id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -3,12 +3,9 @@
   const cache = { demo: {}, server: {} };
   let mode = "demo";
   const prefix = "pulse-preview-v2:";
-  const copy = (value) =>
-    value === undefined ? undefined : JSON.parse(JSON.stringify(value));
+  const copy = (value) => (value === undefined ? undefined : JSON.parse(JSON.stringify(value)));
   const emit = (key) =>
-    window.dispatchEvent(
-      new CustomEvent("pulse-store-change", { detail: { key, mode } }),
-    );
+    window.dispatchEvent(new CustomEvent("pulse-store-change", { detail: { key, mode } }));
   window.PulseStore = {
     get mode() {
       return mode;
@@ -30,7 +27,7 @@
           sessionStorage.setItem(prefix + key, JSON.stringify(value));
         } catch (_) {
           throw new Error(
-            "Não foi possível salvar nesta aba. Verifique o armazenamento do navegador.",
+            "Não foi possível salvar nesta aba. Verifique o armazenamento do navegador."
           );
         }
       }
@@ -47,9 +44,7 @@
       if (mode === "server" && next !== mode) cache.server = {};
       mode = next;
       emit(null);
-      window.dispatchEvent(
-        new CustomEvent("pulse-mode-change", { detail: { mode } }),
-      );
-    },
+      window.dispatchEvent(new CustomEvent("pulse-mode-change", { detail: { mode } }));
+    }
   };
 })();

@@ -1,0 +1,8 @@
+node_modules/
+js/vendor/
+assets/
+package-lock.json
+*.sql
+*.ps1
+*.md
+.htaccess

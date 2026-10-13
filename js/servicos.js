@@ -15,13 +15,12 @@
     approved: "Aprovada",
     rejected: "Recusada",
     cancelled: "Cancelada",
-    pending: "Pendente",
+    pending: "Pendente"
   };
   const statusLabel = (item) => statuses[item.status] || item.status;
   const submitLabel = () =>
     server() ? "Enviar solicitação para análise" : "Salvar solicitação local";
-  const wireName = (name) =>
-    name.replace(/[A-Z]/g, (char) => `_${char.toLowerCase()}`);
+  const wireName = (name) => name.replace(/[A-Z]/g, (char) => `_${char.toLowerCase()}`);
   const el = (tag, text, cls) => {
     const node = document.createElement(tag);
     if (text !== undefined) node.textContent = text;
@@ -52,7 +51,7 @@
     "sms-marketing": "SMS Marketing",
     "whatsapp-attendance": "Atendimento WhatsApp",
     streaming: "Streaming",
-    "service-orders": "Solicitações de serviços",
+    "service-orders": "Solicitações de serviços"
   };
   window.pulseViewNames = Object.assign(window.pulseViewNames || {}, labels);
   const views = {};
@@ -67,32 +66,27 @@
       el(
         "p",
         {
-          "virtual-number":
-            "Escolha a cidade e o DDD para consultar um número.",
+          "virtual-number": "Escolha a cidade e o DDD para consultar um número.",
           "my-numbers": "Consulte os números vinculados à sua empresa.",
           portability: "Solicite a transferência do seu número para a Pulse.",
           "toll-free": "Informe como sua empresa pretende receber chamadas.",
           termination: "Descreva o volume e o destino das chamadas.",
           "sip-trunks": "Informe a capacidade necessária para sua central.",
-          "call-records":
-            "Consulte o histórico de chamadas das linhas conectadas.",
+          "call-records": "Consulte o histórico de chamadas das linhas conectadas.",
           pabx: "Configure sua central e revise a proposta por etapas.",
-          "whatsapp-number":
-            "Consulte um número dedicado ao WhatsApp da sua empresa.",
+          "whatsapp-number": "Consulte um número dedicado ao WhatsApp da sua empresa.",
           "sms-number": "Solicite um número para receber SMS de aplicativos.",
           "sms-marketing": "Escreva a mensagem e revise sua lista de contatos.",
-          "whatsapp-attendance":
-            "Planeje o atendimento da sua equipe pelo WhatsApp.",
+          "whatsapp-attendance": "Planeje o atendimento da sua equipe pelo WhatsApp.",
           streaming: "Consulte os serviços disponíveis para sua empresa.",
-          "service-orders":
-            "Acompanhe os pedidos enviados e consulte os detalhes.",
-        }[id],
-      ),
+          "service-orders": "Acompanhe os pedidos enviados e consulte os detalhes."
+        }[id]
+      )
     );
     const note = el(
       "p",
       "Demonstração local · Os pedidos ficam nesta sessão do navegador. Nenhum serviço é ativado ou cobrado.",
-      "service-demo-note service-mode-notice",
+      "service-demo-note service-mode-notice"
     );
     section.append(heading, note);
     host.append(section);
@@ -132,20 +126,17 @@
       input.maxLength = 5000;
       wrapper.classList.add("service-field-wide");
     }
-    if (name === "contacts")
-      input.placeholder = "Um telefone por linha, com DDD";
+    if (name === "contacts") input.placeholder = "Um telefone por linha, com DDD";
     wrapper.append(label, input);
     return { wrapper, input };
   }
   async function saveRequest(type, details) {
-    if (!store())
-      throw new Error("Armazenamento local indisponível. Recarregue a página.");
+    if (!store()) throw new Error("Armazenamento local indisponível. Recarregue a página.");
     if (server()) {
       const epoch = modeEpoch;
-      if (!window.PulseAPI)
-        throw new Error("API indisponível. Recarregue a página.");
+      if (!window.PulseAPI) throw new Error("API indisponível. Recarregue a página.");
       const wireDetails = Object.fromEntries(
-        Object.entries(details).map(([key, value]) => [wireName(key), value]),
+        Object.entries(details).map(([key, value]) => [wireName(key), value])
       );
       const result = await window.PulseAPI.request(
         "requests",
@@ -153,14 +144,12 @@
           kind: "service",
           op: "create",
           type: type === "sip-trunks" ? "sip_trunk" : type.replace(/-/g, "_"),
-          details: wireDetails,
+          details: wireDetails
         },
-        "POST",
+        "POST"
       );
       if (epoch !== modeEpoch || !server())
-        throw new Error(
-          "A sessão foi alterada. Consulte suas solicitações ao acessar novamente.",
-        );
+        throw new Error("A sessão foi alterada. Consulte suas solicitações ao acessar novamente.");
       const confirmed = result.item || result;
       if (!confirmed.id) throw new Error("Resposta da solicitação inválida.");
       const request = {
@@ -168,7 +157,7 @@
         type,
         details,
         status: confirmed.status || "submitted",
-        created_at: confirmed.created_at || new Date().toISOString(),
+        created_at: confirmed.created_at || new Date().toISOString()
       };
       store().hydrate("serviceRequests", [...read(), request]);
       return request;
@@ -180,11 +169,10 @@
       type,
       details,
       status: "draft",
-      created_at: new Date().toISOString(),
+      created_at: new Date().toISOString()
     };
     const saved = store().set("serviceRequests", [...read(), request]);
-    if (saved === false)
-      throw new Error("Não foi possível salvar neste navegador.");
+    if (saved === false) throw new Error("Não foi possível salvar neste navegador.");
     return request;
   }
   const serviceFields = {
@@ -194,7 +182,7 @@
       ["tariff", "Modalidade", "select", ["Tarifado", "Ilimitado"]],
       ["cycle", "Ciclo desejado", "select", ["Mensal", "Trimestral", "Anual"]],
       ["quantity", "Quantidade", "number"],
-      ["notes", "Observações", "textarea", null, false],
+      ["notes", "Observações", "textarea", null, false]
     ],
     portability: [
       ["number", "Número a portar", "tel"],
@@ -202,79 +190,77 @@
       ["holder", "Titular da linha"],
       ["document", "CPF / CNPJ do titular"],
       ["contact", "E-mail de contato", "email"],
-      ["notes", "Observações", "textarea", null, false],
+      ["notes", "Observações", "textarea", null, false]
     ],
     "toll-free": [
       ["company", "Empresa"],
       ["destination", "Telefone de destino", "tel"],
       ["coverage", "Abrangência desejada", "select", ["Nacional", "Regional"]],
       ["volume", "Chamadas mensais estimadas", "number"],
-      ["contact", "E-mail de contato", "email"],
+      ["contact", "E-mail de contato", "email"]
     ],
     termination: [
       [
         "destination",
         "Destino das chamadas",
         "select",
-        ["Brasil fixo", "Brasil móvel", "Internacional", "Misto"],
+        ["Brasil fixo", "Brasil móvel", "Internacional", "Misto"]
       ],
       ["simultaneous", "Chamadas simultâneas", "number"],
       ["volume", "Minutos mensais estimados", "number"],
       ["contact", "E-mail de contato", "email"],
-      ["notes", "Necessidades técnicas", "textarea", null, false],
+      ["notes", "Necessidades técnicas", "textarea", null, false]
     ],
     "sip-trunks": [
       ["pbx", "Sistema / PABX utilizado"],
       ["simultaneous", "Canais simultâneos", "number"],
       ["ip", "IP público do PABX", "text", null, false],
-      ["contact", "E-mail técnico", "email"],
+      ["contact", "E-mail técnico", "email"]
     ],
     "whatsapp-number": [
       ["ddd", "DDD desejado", "tel"],
       ["city", "Cidade"],
       ["company", "Empresa"],
-      ["contact", "E-mail de contato", "email"],
+      ["contact", "E-mail de contato", "email"]
     ],
     "sms-number": [
       ["ddd", "DDD desejado", "tel"],
       ["purpose", "Uso do número"],
       ["quantity", "Quantidade", "number"],
-      ["contact", "E-mail de contato", "email"],
+      ["contact", "E-mail de contato", "email"]
     ],
     "whatsapp-attendance": [
       ["company", "Empresa"],
       ["agents", "Quantidade de atendentes", "number"],
       ["departments", "Equipes / departamentos", "textarea"],
       ["existingNumber", "WhatsApp atual (opcional)", "tel", null, false],
-      ["contact", "E-mail de contato", "email"],
+      ["contact", "E-mail de contato", "email"]
     ],
     streaming: [
       [
         "plan",
         "Interesse",
         "select",
-        ["Consultar planos disponíveis", "Uso residencial", "Uso empresarial"],
+        ["Consultar planos disponíveis", "Uso residencial", "Uso empresarial"]
       ],
       ["city", "Cidade"],
       ["contact", "E-mail de contato", "email"],
-      ["notes", "O que você procura?", "textarea", null, false],
+      ["notes", "O que você procura?", "textarea", null, false]
     ],
     "sms-marketing": [
       ["name", "Nome da campanha"],
       ["message", "Mensagem", "textarea"],
       ["contacts", "Telefones dos contatos autorizados", "textarea"],
-      ["contact", "E-mail de contato", "email"],
-    ],
+      ["contact", "E-mail de contato", "email"]
+    ]
   };
   const intro = {
     "virtual-number":
       "Consulte a possibilidade de contratação. A disponibilidade e os preços dependem de confirmação da equipe.",
     portability:
       "Prepare os dados do titular e da linha. A análise e a autorização de portabilidade dependem da operadora.",
-    "toll-free":
-      "Solicite uma proposta de 0800 de acordo com o destino e o volume de chamadas.",
-    termination:
-      "Informe sua demanda para preparar uma proposta de roteamento de chamadas.",
+    "toll-free": "Solicite uma proposta de 0800 de acordo com o destino e o volume de chamadas.",
+    termination: "Informe sua demanda para preparar uma proposta de roteamento de chamadas.",
     "sip-trunks":
       "Nenhum tronco SIP contratado. Prepare uma consulta técnica sem inserir senhas ou credenciais.",
     "whatsapp-number":
@@ -286,19 +272,15 @@
     streaming:
       "Envie os dados para uma proposta. Catálogo, licenciamento e planos ainda não foram configurados.",
     "sms-marketing":
-      "Prepare um rascunho. Cadastro e provedor precisam estar configurados para liberar o envio.",
+      "Prepare um rascunho. Cadastro e provedor precisam estar configurados para liberar o envio."
   };
   const lists = {};
   function requestsPanel(type, section) {
-    const panel = el(
-      "section",
-      undefined,
-      "service-panel service-request-history",
-    );
+    const panel = el("section", undefined, "service-panel service-request-history");
     const header = el("div", undefined, "service-panel-top");
     header.append(
       el("h2", "Minhas solicitações"),
-      button("Ver todas →", () => go("service-orders"), "service-link"),
+      button("Ver todas →", () => go("service-orders"), "service-link")
     );
     const content = el("div");
     panel.append(header, content);
@@ -309,9 +291,7 @@
         .filter((item) => item.type === type)
         .reverse();
       if (!items.length) {
-        content.append(
-          el("p", "Nenhuma solicitação preparada.", "service-empty-small"),
-        );
+        content.append(el("p", "Nenhuma solicitação preparada.", "service-empty-small"));
         return;
       }
       items.forEach((item) => {
@@ -319,16 +299,16 @@
         const text = el("div");
         text.append(
           el("strong", `Solicitação ${String(item.id).slice(0, 8)}`),
-          el("small", date(item.created_at)),
+          el("small", date(item.created_at))
         );
         row.append(
           text,
           el(
             "span",
             statusLabel(item),
-            `service-state ${item.status === "cancelled" ? "is-cancelled" : ""}`,
+            `service-state ${item.status === "cancelled" ? "is-cancelled" : ""}`
           ),
-          button("Detalhes", () => showDetails(item), "service-link"),
+          button("Detalhes", () => showDetails(item), "service-link")
         );
         content.append(row);
       });
@@ -339,11 +319,8 @@
     const grid = el("div", undefined, "service-layout");
     const panel = el("section", undefined, "service-panel");
     panel.append(
-      el(
-        "h2",
-        type === "virtual-number" ? "Consultar número" : "Preparar solicitação",
-      ),
-      el("p", intro[type], "service-description"),
+      el("h2", type === "virtual-number" ? "Consultar número" : "Preparar solicitação"),
+      el("p", intro[type], "service-description")
     );
     const form = el("form", undefined, "service-form");
     const fields = el("div", undefined, "service-fields");
@@ -371,10 +348,7 @@
       const checkbox = el("input");
       checkbox.type = "checkbox";
       checkbox.required = true;
-      consent.append(
-        checkbox,
-        el("span", "Tenho autorização dos contatos para esta comunicação."),
-      );
+      consent.append(checkbox, el("span", "Tenho autorização dos contatos para esta comunicação."));
       form.append(consent);
     }
     form.append(submit, feedback);
@@ -382,7 +356,7 @@
       event.preventDefault();
       if (!form.reportValidity()) return;
       const details = Object.fromEntries(
-        Object.entries(inputs).map(([key, input]) => [key, input.value.trim()]),
+        Object.entries(inputs).map(([key, input]) => [key, input.value.trim()])
       );
       if (type === "sms-marketing") {
         const raw = details.contacts
@@ -391,7 +365,7 @@
           .filter(Boolean);
         const normalized = raw.map((value) => value.replace(/\D/g, ""));
         const invalid = normalized.findIndex(
-          (value) => !/^(?:55)?[1-9][0-9][0-9]{8,9}$/.test(value),
+          (value) => !/^(?:55)?[1-9][0-9][0-9]{8,9}$/.test(value)
         );
         if (!raw.length || invalid >= 0) {
           feedback.textContent =
@@ -402,8 +376,7 @@
         }
         details.contacts = [...new Set(normalized)].join("\n");
         details.contactsCount = new Set(normalized).size;
-        details.smsEstimate =
-          smsCount(details.message).parts * details.contactsCount;
+        details.smsEstimate = smsCount(details.message).parts * details.contactsCount;
         details.permissionConfirmed = true;
       }
       try {
@@ -436,19 +409,13 @@
         return {
           length: text.length,
           encoding: "Unicode",
-          parts:
-            text.length === 0
-              ? 0
-              : text.length <= 70
-                ? 1
-                : Math.ceil(text.length / 67),
+          parts: text.length === 0 ? 0 : text.length <= 70 ? 1 : Math.ceil(text.length / 67)
         };
     }
     return {
       length: text.length,
       encoding: "GSM-7",
-      parts:
-        gsmLength === 0 ? 0 : gsmLength <= 160 ? 1 : Math.ceil(gsmLength / 153),
+      parts: gsmLength === 0 ? 0 : gsmLength <= 160 ? 1 : Math.ceil(gsmLength / 153)
     };
   }
   Object.entries(serviceFields).forEach(([type, specs]) => {
@@ -461,8 +428,7 @@
     const mark = el("div", "◌", "service-empty-icon");
     mark.setAttribute("aria-hidden", "true");
     panel.append(mark, el("h2", title), el("p", text));
-    if (target)
-      panel.append(button(actionLabel, () => go(target), "button primary"));
+    if (target) panel.append(button(actionLabel, () => go(target), "button primary"));
     section.append(panel);
   }
   emptyInventory(
@@ -470,14 +436,14 @@
     "Você ainda não possui números",
     "Os números contratados aparecerão aqui quando houver integração com o provedor.",
     "Consultar novo número",
-    "virtual-number",
+    "virtual-number"
   );
   emptyInventory(
     "call-records",
     "Nenhuma chamada registrada",
     "Após a conexão do provedor, esta tela poderá apresentar origem, destino, duração e consumo das chamadas.",
     "Consultar telefonia",
-    "termination",
+    "termination"
   );
   if (views["whatsapp-number"]) {
     const controls = el("div", undefined, "service-inventory-controls");
@@ -496,7 +462,7 @@
       "Pagamento pendente",
       "Aguardando reativação",
       "Bloqueado",
-      "Cancelado",
+      "Cancelado"
     ].forEach((value) => status.append(new Option(value, value)));
     const note = el("p", "Nenhum número contratado.", "service-empty-small");
     const update = () => {
@@ -510,10 +476,7 @@
     controls.append(search, status);
     const panel = el("section", undefined, "service-panel");
     panel.append(el("h2", "Meus números WhatsApp"), controls, note);
-    views["whatsapp-number"].insertBefore(
-      panel,
-      views["whatsapp-number"].children[2],
-    );
+    views["whatsapp-number"].insertBefore(panel, views["whatsapp-number"].children[2]);
   }
   const dialog = el("dialog", undefined, "service-detail-dialog");
   const detailBody = el("div", undefined, "service-detail-body");
@@ -522,42 +485,27 @@
   document.body.append(dialog);
   function showDetails(item) {
     detailBody.replaceChildren(
-      el(
-        "span",
-        `Solicitação ${String(item.id).slice(0, 8)}`,
-        "service-eyebrow",
-      ),
+      el("span", `Solicitação ${String(item.id).slice(0, 8)}`, "service-eyebrow"),
       el("h2", labels[item.type] || item.type),
-      el(
-        "p",
-        `${date(item.created_at)} · ${statusLabel(item)}`,
-        "service-description",
-      ),
+      el("p", `${date(item.created_at)} · ${statusLabel(item)}`, "service-description")
     );
     const dl = el("dl", undefined, "service-detail-list");
-    const specs =
-      serviceFields[item.type] ||
-      wizardSteps.flatMap((step) => step.fields || []);
+    const specs = serviceFields[item.type] || wizardSteps.flatMap((step) => step.fields || []);
     Object.entries(item.details || {}).forEach(([key, value]) => {
       const label =
-        specs.find(
-          (spec) => spec[0] === key || wireName(spec[0]) === key,
-        )?.[1] ||
+        specs.find((spec) => spec[0] === key || wireName(spec[0]) === key)?.[1] ||
         {
           contactsCount: "Contatos válidos",
           contacts_count: "Contatos válidos",
           smsEstimate: "SMS estimados",
           sms_estimate: "SMS estimados",
           permissionConfirmed: "Autorização confirmada",
-          permission_confirmed: "Autorização confirmada",
+          permission_confirmed: "Autorização confirmada"
         }[key] ||
         key;
       dl.append(
         el("dt", label),
-        el(
-          "dd",
-          typeof value === "boolean" ? (value ? "Sim" : "Não") : String(value),
-        ),
+        el("dd", typeof value === "boolean" ? (value ? "Sim" : "Não") : String(value))
       );
     });
     detailBody.append(
@@ -567,8 +515,8 @@
         server()
           ? "Solicitação registrada para análise. Provisionamento e cobrança dependem de confirmação."
           : "Este registro local não representa contratação ou comunicação enviada.",
-        "service-demo-note",
-      ),
+        "service-demo-note"
+      )
     );
     if (!dialog.open) dialog.showModal();
   }
@@ -581,22 +529,17 @@
           "operation",
           "Tipo de operação",
           "select",
-          ["Atendimento", "Vendas", "Atendimento e vendas"],
-        ],
-      ],
+          ["Atendimento", "Vendas", "Atendimento e vendas"]
+        ]
+      ]
     },
     {
       title: "Plano",
       fields: [
         ["extensions", "Quantidade de ramais", "number"],
         ["simultaneous", "Chamadas simultâneas", "number"],
-        [
-          "cycle",
-          "Ciclo desejado",
-          "select",
-          ["Mensal", "Trimestral", "Anual"],
-        ],
-      ],
+        ["cycle", "Ciclo desejado", "select", ["Mensal", "Trimestral", "Anual"]]
+      ]
     },
     {
       title: "Número",
@@ -605,58 +548,46 @@
           "numberMode",
           "Número principal",
           "select",
-          [
-            "Consultar novo número",
-            "Portar número existente",
-            "Já possuo número",
-          ],
+          ["Consultar novo número", "Portar número existente", "Já possuo número"]
         ],
         ["ddd", "DDD", "tel"],
-        [
-          "existingNumber",
-          "Número existente (se aplicável)",
-          "tel",
-          null,
-          false,
-        ],
-      ],
+        ["existingNumber", "Número existente (se aplicável)", "tel", null, false]
+      ]
     },
     {
       title: "Dados",
       fields: [
         ["holder", "Responsável"],
         ["contact", "E-mail", "email"],
-        ["phone", "Telefone", "tel"],
-      ],
+        ["phone", "Telefone", "tel"]
+      ]
     },
     {
       title: "Departamentos",
-      fields: [["departments", "Departamentos e ramais", "textarea"]],
+      fields: [["departments", "Departamentos e ramais", "textarea"]]
     },
     {
       title: "Menu",
       fields: [
         ["greeting", "Mensagem de saudação / URA", "textarea"],
-        ["routing", "Opções de atendimento", "textarea"],
-      ],
+        ["routing", "Opções de atendimento", "textarea"]
+      ]
     },
     {
       title: "Horários",
       fields: [
         ["hours", "Dias e horários de atendimento", "textarea"],
-        ["afterHours", "Mensagem fora do horário", "textarea", null, false],
-      ],
+        ["afterHours", "Mensagem fora do horário", "textarea", null, false]
+      ]
     },
     { title: "Resumo" },
-    { title: "Pagamento" },
+    { title: "Pagamento" }
   ];
   if (views.pabx) {
     const panel = el("section", undefined, "service-panel service-wizard");
     panel.append(el("h2", "Monte sua proposta de PABX"));
     const progress = el("ol", undefined, "service-wizard-progress");
-    wizardSteps.forEach((step, index) =>
-      progress.append(el("li", `${index + 1}. ${step.title}`)),
-    );
+    wizardSteps.forEach((step, index) => progress.append(el("li", `${index + 1}. ${step.title}`)));
     const form = el("form");
     const body = el("div", undefined, "service-fields");
     const actions = el("div", undefined, "service-wizard-actions");
@@ -705,18 +636,11 @@
           body.append(entry.wrapper);
         });
       else if (index === 7) {
-        const summary = el(
-          "dl",
-          undefined,
-          "service-detail-list service-field-wide",
-        );
+        const summary = el("dl", undefined, "service-detail-list service-field-wide");
         wizardSteps
           .flatMap((step) => step.fields || [])
           .forEach(([key, title]) => {
-            summary.append(
-              el("dt", title),
-              el("dd", values[key] || "Não informado"),
-            );
+            summary.append(el("dt", title), el("dd", values[key] || "Não informado"));
           });
         body.append(summary);
       } else {
@@ -726,8 +650,8 @@
           el(
             "p",
             "O preço e a forma de pagamento serão definidos após análise da equipe. Salvar esta proposta não cria assinatura, fatura ou cobrança.",
-            "service-description",
-          ),
+            "service-description"
+          )
         );
         const check = el("label", undefined, "service-consent");
         const input = el("input");
@@ -739,8 +663,8 @@
             "span",
             server()
               ? "Revisei os dados e quero enviar esta proposta para análise."
-              : "Revisei os dados e quero salvar uma proposta local.",
-          ),
+              : "Revisei os dados e quero salvar uma proposta local."
+          )
         );
         block.append(check);
         body.append(block);
@@ -785,9 +709,7 @@
     const status = el("select");
     status.setAttribute("aria-label", "Filtrar situação");
     status.append(new Option("Todas as situações", ""));
-    Object.entries(statuses).forEach(([value, label]) =>
-      status.append(new Option(label, value)),
-    );
+    Object.entries(statuses).forEach(([value, label]) => status.append(new Option(label, value)));
     const type = el("select");
     type.setAttribute("aria-label", "Filtrar serviço");
     type.append(new Option("Todos os serviços", ""));
@@ -803,7 +725,7 @@
             (!type.value || item.type === type.value) &&
             `${item.id} ${labels[item.type]} ${Object.values(item.details || {}).join(" ")}`
               .toLocaleLowerCase("pt-BR")
-              .includes(search.value.trim().toLocaleLowerCase("pt-BR")),
+              .includes(search.value.trim().toLocaleLowerCase("pt-BR"))
         )
         .reverse();
     controls.append(
@@ -823,17 +745,13 @@
             labels[item.type],
             statusLabel(item),
             date(item.created_at),
-            JSON.stringify(item.details),
-          ]),
+            JSON.stringify(item.details)
+          ])
         ];
         const url = URL.createObjectURL(
-          new Blob(
-            [
-              "\uFEFF" +
-                rows.map((row) => row.map(safe).join(";")).join("\r\n"),
-            ],
-            { type: "text/csv;charset=utf-8" },
-          ),
+          new Blob(["\uFEFF" + rows.map((row) => row.map(safe).join(";")).join("\r\n")], {
+            type: "text/csv;charset=utf-8"
+          })
         );
         const anchor = el("a");
         anchor.href = url;
@@ -842,22 +760,20 @@
         anchor.click();
         anchor.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1000);
-      }),
+      })
     );
     renderOrders = () => {
       output.replaceChildren();
       const items = filtered();
       if (!items.length) {
-        output.append(
-          el("div", "Nenhuma solicitação encontrada.", "service-inventory"),
-        );
+        output.append(el("div", "Nenhuma solicitação encontrada.", "service-inventory"));
         return;
       }
       const table = el("table");
       const head = el("thead");
       const heading = el("tr");
-      ["Serviço", "Protocolo", "Situação", "Criado em", "Ações"].forEach(
-        (text) => heading.append(el("th", text)),
+      ["Serviço", "Protocolo", "Situação", "Criado em", "Ações"].forEach((text) =>
+        heading.append(el("th", text))
       );
       head.append(heading);
       const body = el("tbody");
@@ -867,12 +783,10 @@
           labels[item.type] || item.type,
           String(item.id).slice(0, 8),
           statusLabel(item),
-          date(item.created_at),
+          date(item.created_at)
         ].forEach((value) => row.append(el("td", value)));
         const actions = el("td", undefined, "service-row-actions");
-        actions.append(
-          button("Detalhes", () => showDetails(item), "service-link"),
-        );
+        actions.append(button("Detalhes", () => showDetails(item), "service-link"));
         if (["draft", "submitted", "reviewing", "quoted"].includes(item.status))
           actions.append(
             button(
@@ -891,11 +805,11 @@
                           await window.PulseAPI.request(
                             "requests",
                             { kind: "service", op: "cancel", id: item.id },
-                            "POST",
+                            "POST"
                           );
                           if (epoch !== modeEpoch || !server())
                             throw new Error(
-                              "A sessão foi alterada. Consulte suas solicitações ao acessar novamente.",
+                              "A sessão foi alterada. Consulte suas solicitações ao acessar novamente."
                             );
                         }
                         const updated = read().map((entry) =>
@@ -903,26 +817,25 @@
                             ? {
                                 ...entry,
                                 status: "cancelled",
-                                updated_at: new Date().toISOString(),
+                                updated_at: new Date().toISOString()
                               }
-                            : entry,
+                            : entry
                         );
-                        if (server())
-                          store().hydrate("serviceRequests", updated);
+                        if (server()) store().hydrate("serviceRequests", updated);
                         else store().set("serviceRequests", updated);
                         refresh();
                       } catch (error) {
                         warning.replaceChildren(el("span", error.message));
                       }
                     },
-                    "service-link",
+                    "service-link"
                   ),
-                  button("Voltar", () => warning.remove(), "service-link"),
+                  button("Voltar", () => warning.remove(), "service-link")
                 );
                 actions.append(warning);
               },
-              "service-link",
-            ),
+              "service-link"
+            )
           );
         row.append(actions);
         body.append(row);

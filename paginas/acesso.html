@@ -1,43 +1,170 @@
 <!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="referrer" content="no-referrer"><meta name="robots" content="noindex">
-  <title>Sua conta · Pulse</title>
-  <link rel="icon" href="../assets/favicon.svg"><script src="../js/tema.js"></script>
-  <link rel="stylesheet" href="../css/clientes.css?v=20261009-2">
-</head>
-<body>
-  <main class="login-layout">
-    <section class="login-brand"><a class="brand" href="../index.html">pulse<span>.</span></a><div><p class="eyebrow">MENSAGENS PARA SUA EMPRESA</p><h1>Sua próxima conversa<br>começa aqui.</h1><p>Crie sua conta e organize os envios da sua empresa.</p></div><small>Área do cliente</small></section>
-    <section class="login-content">
-      <button type="button" data-theme-toggle class="theme-toggle" aria-label="Alternar tema">☾</button>
-      <div class="login-card auth-card">
-        <a class="auth-back" href="clientes.html">← Voltar para entrar</a>
-        <h2 id="access-title">Crie sua conta</h2><p id="access-description">Confirme seu e-mail e defina sua senha pelo link que vamos enviar.</p>
-        <form id="register-form" hidden>
-          <label for="register-name">Seu nome</label><input id="register-name" autocomplete="name" maxlength="191" required>
-          <label for="register-company">Empresa ou nome do negócio</label><input id="register-company" autocomplete="organization" maxlength="191" required>
-          <label for="register-email">E-mail</label><input id="register-email" type="email" autocomplete="email" maxlength="254" required>
-          <button class="button primary" type="submit">Enviar link de cadastro</button>
-        </form>
-        <form id="forgot-form" hidden>
-          <label for="forgot-email">E-mail da sua conta</label><input id="forgot-email" type="email" autocomplete="email" maxlength="254" required>
-          <button class="button primary" type="submit">Enviar link de recuperação</button>
-        </form>
-        <form id="new-password-form" hidden>
-          <label for="new-password">Nova senha</label><input id="new-password" type="password" autocomplete="new-password" minlength="12" maxlength="72" aria-describedby="password-help" required>
-          <small id="password-help">Use pelo menos 12 caracteres. Prefira uma frase que só você conhece.</small>
-          <label for="confirm-password">Confirmar senha</label><input id="confirm-password" type="password" autocomplete="new-password" minlength="12" maxlength="72" required>
-          <label class="auth-show"><input id="access-show-password" type="checkbox">Mostrar senhas</label>
-          <button id="save-password" class="button primary" type="submit">Salvar senha</button>
-        </form>
-        <p id="access-feedback" class="service-feedback" role="status" tabindex="-1"></p>
-        <a id="access-success" class="button primary" href="clientes.html" hidden>Entrar na minha conta</a>
-        <div class="auth-links"><a href="#cadastro">Criar conta</a><a href="#recuperar">Recuperar senha</a></div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="robots" content="noindex" />
+    <title>Sua conta · Pulse</title>
+    <link rel="stylesheet" href="../css/base.css?v=20261013-visual4" />
+    <link rel="icon" href="../assets/favicon.svg" />
+    <script src="../js/tema.js?v=20261013-visual4"></script>
+    <link rel="stylesheet" href="../css/clientes.css?v=20261013-visual4" />
+    <link rel="stylesheet" href="../css/acesso.css?v=20261013-visual4" />
+  </head>
+  <body>
+    <main class="access-shell">
+      <header class="access-header">
+        <a class="brand" href="../index.html" aria-label="Pulse início">pulse<span>.</span></a>
+        <nav aria-label="Navegação de acesso">
+          <a class="access-home" href="../index.html">Conheça a Pulse</a
+          ><a href="clientes.html">Entrar</a
+          ><a class="button primary" href="acesso.html#cadastro"
+            >Criar conta <span aria-hidden="true">↗</span></a
+          ><button type="button" data-theme-toggle class="theme-toggle" aria-label="Alternar tema">
+            ☾
+          </button>
+        </nav>
+      </header>
+      <div class="access-main">
+        <nav class="access-breadcrumb" aria-label="Caminho da página">
+          <a href="../index.html">Início</a><span aria-hidden="true">/</span
+          ><span id="access-breadcrumb-current">Criar conta</span>
+        </nav>
+        <div class="access-grid">
+          <section class="access-intro" aria-labelledby="access-intro-title">
+            <span class="access-label"
+              ><span aria-hidden="true"></span> SUA EMPRESA, CONECTADA</span
+            >
+            <h1 id="access-intro-title">Cada mensagem.<br />Uma <em>nova conexão.</em></h1>
+            <p class="access-lead">
+              SMS e números para aproximar sua empresa de quem importa. Tudo no seu painel Pulse.
+            </p>
+            <ol class="access-steps" aria-label="Etapas para começar">
+              <li>
+                <span>01</span>
+                <div>
+                  <strong>Conte um pouco sobre você</strong>
+                  <p>Seu nome, sua empresa e seu e-mail.</p>
+                </div>
+              </li>
+              <li>
+                <span>02</span>
+                <div>
+                  <strong>Confirme seu e-mail</strong>
+                  <p>Abra o link recebido e escolha sua senha.</p>
+                </div>
+              </li>
+              <li>
+                <span>03</span>
+                <div>
+                  <strong>Entre e organize seus envios</strong>
+                  <p>Campanhas e pedidos em um só lugar.</p>
+                </div>
+              </li>
+            </ol>
+            <div class="access-signal" aria-hidden="true">
+              <svg viewBox="0 0 440 100" fill="none">
+                <path
+                  class="signal-track"
+                  d="M20 50H132C170 50 170 20 210 20H418M132 50C180 50 180 80 235 80H360"
+                />
+                <path class="signal-trail" d="M20 50H132C170 50 170 20 210 20H418" />
+                <circle cx="20" cy="50" r="7" />
+                <circle cx="418" cy="20" r="5" />
+                <circle cx="360" cy="80" r="5" />
+                <rect x="262" y="5" width="48" height="30" rx="9" />
+                <path d="m272 15 14 9 14-9" /></svg
+              ><span>Feito para fazer sua mensagem chegar.</span>
+            </div>
+          </section>
+          <section class="access-form-area" aria-labelledby="access-title">
+            <div class="login-card auth-card">
+              <p class="access-card-label">SEU ESPAÇO NA PULSE</p>
+
+              <h2 id="access-title">Crie sua conta</h2>
+              <p id="access-description">
+                Confirme seu e-mail e defina sua senha pelo link que vamos enviar.
+              </p>
+              <form id="register-form" hidden>
+                <label for="register-name">Seu nome</label
+                ><input id="register-name" autocomplete="name" maxlength="191" required />
+                <label for="register-company">Empresa ou nome do negócio</label
+                ><input
+                  id="register-company"
+                  autocomplete="organization"
+                  maxlength="191"
+                  required
+                />
+                <label for="register-email">E-mail</label
+                ><input
+                  id="register-email"
+                  type="email"
+                  autocomplete="email"
+                  maxlength="254"
+                  required
+                />
+                <button class="button primary" type="submit">Enviar link de cadastro</button>
+              </form>
+              <form id="forgot-form" hidden>
+                <label for="forgot-email">E-mail da sua conta</label
+                ><input
+                  id="forgot-email"
+                  type="email"
+                  autocomplete="email"
+                  maxlength="254"
+                  required
+                />
+                <button class="button primary" type="submit">Enviar link de recuperação</button>
+              </form>
+              <form id="new-password-form" hidden>
+                <label for="new-password">Nova senha</label
+                ><input
+                  id="new-password"
+                  type="password"
+                  autocomplete="new-password"
+                  minlength="12"
+                  maxlength="72"
+                  aria-describedby="password-help"
+                  required
+                />
+                <small id="password-help"
+                  >Use pelo menos 12 caracteres. Prefira uma frase que só você conhece.</small
+                >
+                <label for="confirm-password">Confirmar senha</label
+                ><input
+                  id="confirm-password"
+                  type="password"
+                  autocomplete="new-password"
+                  minlength="12"
+                  maxlength="72"
+                  required
+                />
+                <label class="auth-show"
+                  ><input id="access-show-password" type="checkbox" />Mostrar senhas</label
+                >
+                <button id="save-password" class="button primary" type="submit">
+                  Salvar senha
+                </button>
+              </form>
+              <p id="access-feedback" class="service-feedback" role="status" tabindex="-1"></p>
+              <a id="access-success" class="button primary" href="clientes.html" hidden
+                >Entrar na minha conta</a
+              >
+              <div class="auth-links">
+                <a href="#cadastro">Criar conta</a><a href="#recuperar">Recuperar senha</a>
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
-    </section>
-  </main>
-  <script src="../js/acesso.js?v=20261009-1"></script>
-</body>
+
+      <footer class="access-footer">
+        <span>Pulse · Mensagens para sua empresa</span
+        ><a href="../politica-de-cookies.html">Política de cookies</a>
+      </footer>
+    </main>
+
+    <script src="../js/acesso.js?v=20261013-1"></script>
+  </body>
 </html>

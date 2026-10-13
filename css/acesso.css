@@ -1,0 +1,448 @@
+.access-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+.access-header {
+  min-height: 94px;
+  width: min(1180px, calc(100% - 80px));
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--line);
+}
+.access-header .brand {
+  font-size: 36px;
+}
+.access-header nav {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.access-header nav > a:not(.button) {
+  transition: color 0.2s;
+}
+.access-header nav > a:not(.button):hover {
+  color: var(--green);
+}
+.access-header .button {
+  gap: 14px;
+  min-height: 42px;
+  padding-inline: 22px;
+}
+.access-header .theme-toggle {
+  width: 36px;
+  height: 36px;
+}
+.access-main {
+  flex: 1;
+  width: min(1060px, calc(100% - 80px));
+  margin-inline: auto;
+  padding-block: 38px 60px;
+}
+.access-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 48px;
+}
+.access-breadcrumb a:hover {
+  color: var(--ink);
+}
+.access-breadcrumb > span:last-child {
+  color: var(--ink);
+}
+.access-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 420px);
+  gap: clamp(30px, 5vw, 64px);
+  align-items: stretch;
+}
+.access-intro {
+  padding: 36px;
+  background: #123426;
+  color: #f0f8f3;
+  border-radius: 24px;
+  animation: access-arrive 0.5s var(--ease) both;
+}
+.access-label {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  padding: 8px 13px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 30px;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+.access-label > span {
+  width: 6px;
+  height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+}
+.access-intro h1 {
+  margin-block: 25px 20px;
+  font-size: clamp(32px, 3.6vw, 45px);
+  font-weight: 600;
+  line-height: 1.16;
+  letter-spacing: -1.8px;
+}
+.access-intro h1 em {
+  font-style: normal;
+  color: var(--green-strong);
+}
+.access-lead {
+  max-width: 390px;
+  font-size: 14px;
+  line-height: 1.85;
+  margin-bottom: 32px;
+}
+.access-steps {
+  padding: 0;
+  list-style: none;
+  margin: 0;
+}
+.access-steps li {
+  display: flex;
+  gap: 18px;
+  padding-block: 14px;
+  border-top: 1px solid var(--line);
+}
+.access-steps li > span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green-strong);
+  padding-top: 3px;
+}
+.access-steps strong {
+  font-size: 13px;
+  font-weight: 600;
+}
+.access-steps p {
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+.access-signal {
+  margin-top: 20px;
+  max-width: 370px;
+  color: var(--muted);
+}
+.access-signal svg {
+  width: 100%;
+  height: 76px;
+  display: block;
+  stroke: #0c9d60;
+  stroke-width: 1.5;
+}
+.access-signal .signal-track {
+  stroke: var(--line);
+}
+.access-signal .signal-trail {
+  stroke-dasharray: 28 440;
+  animation: access-message 6s linear infinite;
+}
+.access-signal circle,
+.access-signal rect {
+  fill: var(--surface);
+}
+.access-signal > span {
+  display: block;
+  font-size: 10px;
+  margin-top: 2px;
+}
+.access-form-area {
+  position: relative;
+  min-width: 0;
+}
+.access-form-area::before {
+  content: "";
+  position: absolute;
+  inset: -30px -35px 25% -40px;
+  background: radial-gradient(ellipse at top, var(--soft), transparent 72%);
+  pointer-events: none;
+}
+.access-shell .login-card {
+  width: 100%;
+  position: relative;
+  padding: 32px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  animation: access-arrive 0.5s 0.08s var(--ease) both;
+}
+.access-card-label {
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.access-shell .login-card h2 {
+  font-size: 25px;
+  letter-spacing: -0.8px;
+  margin-bottom: 10px;
+}
+.access-shell .login-card > p:not(.access-card-label):not(.service-feedback) {
+  font-size: 13px;
+  line-height: 1.8;
+  margin-bottom: 24px;
+}
+.access-shell form {
+  font-size: 12px;
+}
+.access-shell form > label {
+  font-weight: 600;
+}
+.access-shell input {
+  min-height: 46px;
+  border-radius: 12px;
+  padding: 12px;
+}
+.access-shell form > .button {
+  border-radius: 24px;
+  min-height: 48px;
+  width: 100%;
+  font-size: 12px;
+}
+.access-shell .password-input {
+  border-radius: 12px;
+}
+.access-shell .auth-show input {
+  min-height: 0;
+}
+.access-shell .auth-links {
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  margin-top: 24px;
+  gap: 12px;
+  font-size: 11px;
+}
+.access-shell .auth-links a {
+  text-decoration: none;
+}
+.access-shell .auth-links a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.access-footer {
+  width: min(1180px, calc(100% - 80px));
+  margin-inline: auto;
+  border-top: 1px solid var(--line);
+  padding-block: 22px;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.access-footer a:hover {
+  color: var(--ink);
+}
+[data-theme="dark"] .access-intro h1 em,
+[data-theme="dark"] .access-steps li > span {
+  color: #5cdda0;
+}
+[data-theme="dark"] .access-shell .login-card {
+  box-shadow: 0 14px 45px #00000018;
+}
+@keyframes access-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes access-message {
+  from {
+    stroke-dashoffset: 468;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (max-width: 900px) {
+  .access-header,
+  .access-footer {
+    width: calc(100% - 48px);
+  }
+  .access-main {
+    width: calc(100% - 48px);
+    padding-block: 28px 44px;
+  }
+  .access-header nav {
+    gap: 18px;
+  }
+  .access-header .access-home {
+    display: none;
+  }
+  .access-breadcrumb {
+    margin-bottom: 28px;
+  }
+  .access-grid {
+    gap: 32px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 360px);
+  }
+  .access-shell .login-card {
+    padding: 26px;
+  }
+  .access-intro h1 {
+    font-size: 34px;
+  }
+}
+@media (max-width: 680px) {
+  .access-header {
+    min-height: 80px;
+    width: calc(100% - 36px);
+    gap: 12px;
+  }
+  .access-header .brand {
+    font-size: 31px;
+  }
+  .access-header nav {
+    gap: 14px;
+    font-size: 12px;
+  }
+  .access-header nav .button {
+    display: none;
+  }
+  .access-main {
+    width: calc(100% - 36px);
+    padding-block: 22px 36px;
+  }
+  .access-breadcrumb {
+    margin-bottom: 24px;
+    font-size: 11px;
+  }
+  .access-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+  }
+  .access-intro {
+    padding-top: 0;
+  }
+  .access-intro h1 {
+    font-size: 32px;
+    letter-spacing: -1px;
+    margin-block: 18px 12px;
+  }
+  .access-lead {
+    font-size: 13px;
+    margin-bottom: 0;
+  }
+  .access-steps,
+  .access-signal {
+    display: none;
+  }
+  .access-shell .login-card {
+    padding: 25px 22px;
+    border-radius: 16px;
+  }
+  .access-shell .login-card h2 {
+    font-size: 23px;
+  }
+  .access-form-area::before {
+    inset: -15px 0 25%;
+  }
+  .access-footer {
+    width: calc(100% - 36px);
+    font-size: 9px;
+    padding-block: 18px;
+    flex-wrap: wrap;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .access-intro,
+  .access-shell .login-card,
+  .access-signal .signal-trail {
+    animation: none;
+  }
+}
+
+.access-header {
+  background: transparent;
+}
+.access-shell .login-card h2 {
+  font-size: 26px;
+}
+.access-shell form > label {
+  font-size: 12px;
+}
+.access-shell .auth-links a {
+  color: var(--green-strong);
+}
+.access-steps li {
+  padding-block: 17px;
+}
+.access-shell input:focus,
+.access-shell .password-input:focus-within {
+  border-color: var(--green-strong);
+  box-shadow: 0 0 0 3px #16ca7c12;
+}
+@media (max-width: 680px) {
+  .access-shell .login-card h2 {
+    font-size: 23px;
+  }
+  .access-header {
+    min-height: 80px;
+  }
+}
+
+.access-intro .access-label {
+  background: #ffffff08;
+  border-color: #ffffff20;
+  color: #a6ebc4;
+}
+.access-intro h1 em {
+  color: #69e8a4;
+}
+.access-intro .access-lead,
+.access-intro .access-steps p,
+.access-intro .access-signal {
+  color: #abc6b7;
+}
+.access-intro .access-steps li {
+  border-color: #ffffff18;
+}
+.access-intro .access-steps li > span {
+  color: #69e8a4;
+}
+.access-signal .signal-track {
+  stroke: #ffffff25;
+}
+.access-intro .access-signal circle,
+.access-intro .access-signal rect {
+  fill: #123426;
+}
+.access-form-area::before {
+  display: none;
+}
+.access-shell .login-card {
+  height: 100%;
+  padding: 36px;
+  box-shadow: 0 8px 32px #12342608;
+}
+.access-card-label {
+  color: var(--green-strong);
+}
+@media (max-width: 760px) {
+  .access-intro {
+    padding: 28px;
+  }
+  .access-shell .login-card {
+    padding: 28px;
+  }
+}

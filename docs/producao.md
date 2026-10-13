@@ -6,12 +6,12 @@ Gere o pacote com `scripts/build-production.ps1`. O ZIP contém `public/` e `pri
 
 ## Locaweb
 
-1. Crie um banco exclusivo de produção. Em banco vazio, importe `schema.sql` pelo phpMyAdmin. Em banco existente, faça backup e importe `database/migrations/006_sms_billing_admin.sql` e `database/migrations/007_registration.sql`. Não importe os dados locais de teste.
+1. Crie um banco exclusivo de produção. Em banco vazio, importe `schema.sql` pelo phpMyAdmin. Em banco existente, faça backup e importe `database/migrations/006_sms_billing_admin.sql` `database/migrations/007_registration.sql` e `database/migrations/008_number_delivery.sql`. Não importe os dados locais de teste.
 2. Publique `index.html`, `paginas/`, `css/`, `js/`, `assets/`, os demais assets referenciados e `.htaccess`, além de `backend/`. As pastas `backend/src/` precisam existir para o PHP, mas não podem ser acessadas pelo navegador. Não publique banco, testes, scripts, documentação ou configurações privadas.
 3. Copie `backend/panel-config.example.php` para fora da pasta pública. Configure DSN, usuário restrito ao banco, senha, segredo aleatório de 32 bytes ou mais, origem HTTPS exata e cookie seguro. Configure `PULSE_CONFIG_PATH` no ambiente PHP da hospedagem apontando para esse arquivo. A forma de definir a variável depende do plano; verifique o painel/suporte da hospedagem. Não coloque segredos em JavaScript ou em `.htaccess`.
 4. Defina `chipeira.base_url` como endereço HTTPS estável do backend da chipeira, com a mesma `PULSE_API_KEY`. Desative `allow_local_http`. O agente e o hardware continuam na máquina Windows; a hospedagem deve conseguir acessar o backend por conexão autenticada. Um túnel temporário não é endereço de produção.
 5. Crie a conta administrativa via `scripts/create-admin.php` no terminal, com `PULSE_ADMIN_EMAIL` e `PULSE_ADMIN_PASSWORD` definidos apenas no processo. Inclua o ID retornado em `admin_user_ids` no arquivo privado. Para conta existente, inclua seu ID sem recriar o usuário. Ser proprietário de uma empresa não concede administração global.
-6. Agende `php /caminho/privado/scripts/reconcile-sms.php` a cada minuto, com `PULSE_CONFIG_PATH` configurado. Mantenha scripts e migrações fora da pasta pública. Configure também `auth_mail.from` com um remetente autorizado e teste os links de cadastro e recuperação; detalhes em `docs/cadastro-senha.md`. A consulta do financeiro também reconcilia as campanhas, mas o agendamento garante devolução mesmo sem cliente conectado.
+6. Agende `php /caminho/privado/scripts/reconcile-sms.php` a cada minuto para conferir SMS e entregar números pagos, com `PULSE_CONFIG_PATH` configurado. Mantenha scripts e migrações fora da pasta pública. Configure também `auth_mail.from` com um remetente autorizado e teste os links de cadastro e recuperação; detalhes em `docs/cadastro-senha.md`. A consulta do financeiro também reconcilia as campanhas, mas o agendamento garante devolução mesmo sem cliente conectado.
 7. Execute `php scripts/check-production.php`. Depois teste login, acesso negado ao admin por cliente, recarga manual conferida, saldo insuficiente, campanha autorizada, extrato e cancelamento. O verificador não envia SMS e não confirma pagamentos.
 8. Ative HTTPS, backups automáticos do banco e teste restauração. Confirme que URLs de `schema.sql`, arquivos ocultos, scripts e `backend/src/` retornam 403/404 no servidor.
 
@@ -27,7 +27,7 @@ Contas ilimitadas são exceções explícitas e auditadas, destinadas a teste. O
 
 ## Operação administrativa
 
-Clientes: consultar saldo, ajustar tarifa, suspender/reativar e conferir campanhas. Recargas: confirmação manual com referência obrigatória, uma única liberação de saldo e bloqueio de confirmação manual para cobranças administradas por provedor. Pedidos: análise, orçamento, aceitação e cancelamento com histórico; esses estados não entregam nem cobram números automaticamente.
+Clientes: consultar saldo, ajustar tarifa, suspender/reativar e conferir campanhas. Recargas: confirmação manual com referência obrigatória, uma única liberação de saldo e bloqueio de confirmação manual para cobranças administradas por provedor. Pedidos: análise e orçamento com valor total. O cliente confirma a compra com saldo; a rotina automática reserva o número na chipeira e libera os SMS recebidos. Veja `docs/numeros-entrega.md` para estoque, devoluções e limites.
 
 A confirmação manual exige conferência externa do recebimento. Pix/boleto automáticos continuam dependentes de um provedor. O painel não valida um comprovante sozinho.
 

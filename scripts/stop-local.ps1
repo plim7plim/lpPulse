@@ -1,5 +1,11 @@
 $ErrorActionPreference = 'Stop'
 $taskRuntime = 'C:\BLU\pulse-local'
+$taskWorkerPidFile = Join-Path $taskRuntime 'reconciliation.pid'
+if (Test-Path -LiteralPath $taskWorkerPidFile) {
+    $taskWorkerId = [int](Get-Content -LiteralPath $taskWorkerPidFile -Raw).Trim()
+    $taskWorkerProcess = Get-CimInstance Win32_Process -Filter "ProcessId=$taskWorkerId"
+    if ($taskWorkerProcess -and $taskWorkerProcess.CommandLine -match 'scripts[/\\]reconcile-sms\.php' -and $taskWorkerProcess.CommandLine -match '--watch') { Stop-Process -Id $taskWorkerId }
+}
 $taskPhpPidFile = Join-Path $taskRuntime 'php.pid'
 $taskPhpPort = Get-NetTCPConnection -LocalPort 4173 -State Listen -ErrorAction SilentlyContinue
 if ($taskPhpPort -and (Test-Path -LiteralPath $taskPhpPidFile)) {

@@ -1,4 +1,4 @@
--- Pulse | Estrutura inicial v7 | MySQL 5.6.5+ / MariaDB 10.1+
+-- Pulse | Estrutura inicial v8 | MySQL 5.6.5+ / MariaDB 10.1+
 -- Selecione o banco criado na Locaweb antes de importar pelo phpMyAdmin.
 -- Execute UMA VEZ em um banco vazio. Não contém DROP, credenciais ou dados fictícios.
 -- InnoDB + utf8mb4_unicode_ci; sem JSON nativo, CHECK, triggers ou privilégios especiais.
@@ -451,48 +451,85 @@ CREATE TABLE auth_login_attempts (
 
 -- Cobrança de SMS e administração
 CREATE TABLE IF NOT EXISTS sms_billing_accounts (
- company_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
- rate_mills INT UNSIGNED NOT NULL DEFAULT 50,
- unlimited TINYINT UNSIGNED NOT NULL DEFAULT 0,
- FOREIGN KEY (company_id) REFERENCES companies(id)
+    company_id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
+    rate_mills INT UNSIGNED NOT NULL DEFAULT 50,
+    unlimited TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    FOREIGN KEY (company_id) REFERENCES companies(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE IF NOT EXISTS sms_charges (
- id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
- company_id BIGINT UNSIGNED NOT NULL,
- request_id VARCHAR(80) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
- payload_hash CHAR(64) CHARACTER SET ascii NOT NULL,
- payload TEXT NOT NULL,
- remote_id BIGINT UNSIGNED NULL,
- rate_mills INT UNSIGNED NOT NULL,
- segments INT UNSIGNED NOT NULL,
- recipients INT UNSIGNED NOT NULL,
- reserved_cents BIGINT UNSIGNED NOT NULL,
- charged_cents BIGINT UNSIGNED NULL,
- status ENUM('reserved','running','settled','rejected') NOT NULL DEFAULT 'reserved',
- created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
- updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
- UNIQUE KEY uq_sms_request(company_id,request_id),
- KEY idx_sms_status(status,id),
- FOREIGN KEY (company_id) REFERENCES companies(id)
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    company_id BIGINT UNSIGNED NOT NULL,
+    request_id VARCHAR(80) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    payload_hash CHAR(64) CHARACTER SET ascii NOT NULL,
+    payload TEXT NOT NULL,
+    remote_id BIGINT UNSIGNED NULL,
+    rate_mills INT UNSIGNED NOT NULL,
+    segments INT UNSIGNED NOT NULL,
+    recipients INT UNSIGNED NOT NULL,
+    reserved_cents BIGINT UNSIGNED NOT NULL,
+    charged_cents BIGINT UNSIGNED NULL,
+    status ENUM('reserved','running','settled','rejected') NOT NULL DEFAULT 'reserved',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_sms_request(company_id,request_id),
+    KEY idx_sms_status(status,id),
+    FOREIGN KEY (company_id) REFERENCES companies(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 CREATE TABLE IF NOT EXISTS admin_events (
- id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
- user_id BIGINT UNSIGNED NOT NULL,
- action VARCHAR(64) NOT NULL,
- details TEXT NOT NULL,
- created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
- FOREIGN KEY (user_id) REFERENCES users(id)
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    action VARCHAR(64) NOT NULL,
+    details TEXT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Cadastro com confirmação de e-mail
 CREATE TABLE IF NOT EXISTS email_verification_tokens (
- id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
- user_id BIGINT UNSIGNED NOT NULL,
- token_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
- expires_at DATETIME NOT NULL,
- used_at DATETIME NULL,
- created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
- UNIQUE KEY uq_email_verification_token(token_hash),
- KEY idx_email_verification_user(user_id),
- FOREIGN KEY (user_id) REFERENCES users(id)
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL,
+    token_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    expires_at DATETIME NOT NULL,
+    used_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_email_verification_token(token_hash),
+    KEY idx_email_verification_user(user_id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Estoque e entrega de números pagos
+CREATE TABLE IF NOT EXISTS number_fulfillments (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    company_id BIGINT UNSIGNED NOT NULL,
+    service_request_id BIGINT UNSIGNED NOT NULL,
+    amount_cents BIGINT UNSIGNED NOT NULL,
+    version INT UNSIGNED NOT NULL DEFAULT 1,
+    quote_note VARCHAR(500) NOT NULL,
+    status ENUM('quoted','paid','completed','cancelled') NOT NULL DEFAULT 'quoted',
+    paid_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_number_order(service_request_id),
+    UNIQUE KEY uq_number_order_company(company_id,id),
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (service_request_id) REFERENCES service_requests(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+CREATE TABLE IF NOT EXISTS number_inventory (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    phone VARCHAR(20) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    slot SMALLINT UNSIGNED NOT NULL,
+    type ENUM('sms','whatsapp') NOT NULL,
+    verification_note VARCHAR(500) NOT NULL,
+    status ENUM('available','allocated','activating','delivered','failed','retired') NOT NULL DEFAULT 'available',
+    company_id BIGINT UNSIGNED NULL,
+    fulfillment_id BIGINT UNSIGNED NULL,
+    delivery_key CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NULL,
+    item_cents BIGINT UNSIGNED NULL,
+    last_error VARCHAR(500) NULL,
+    delivered_at DATETIME NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uq_inventory_phone(phone),
+    UNIQUE KEY uq_inventory_delivery_key(delivery_key),
+    KEY idx_inventory_available(type,status,id),
+    KEY idx_inventory_order(company_id,fulfillment_id),
+    FOREIGN KEY (company_id,fulfillment_id) REFERENCES number_fulfillments(company_id,id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -33,7 +33,7 @@
   const status = node(
     "p",
     "Entre na sua conta para consultar os números da chipeira.",
-    "service-description",
+    "service-description"
   );
   status.setAttribute("role", "status");
   const refreshButton = button("Atualizar", refresh);
@@ -44,16 +44,16 @@
   numbersView.querySelector(".service-inventory")?.replaceWith(panel);
   const campaignPanel = node("section", undefined, "service-panel chip-panel");
   const campaignTop = node("div", undefined, "service-panel-top");
-  campaignTop.append(
-    node("h2", "Campanhas de SMS"),
-    button("Atualizar", refresh),
-  );
+  campaignTop.append(node("h2", "Campanhas de SMS"), button("Atualizar", refresh));
   const campaignList = node("div");
   campaignPanel.append(campaignTop, campaignList);
   campaignsView.append(campaignPanel);
   const dispatchPanel = node("section", undefined, "service-panel chip-panel sms-composer");
   const dispatchHeader = node("div", undefined, "composer-heading");
-  dispatchHeader.append(node("h2", "Nova campanha"), node("span", "Distribuição automática · até 64 slots", "composer-badge"));
+  dispatchHeader.append(
+    node("h2", "Nova campanha"),
+    node("span", "Distribuição automática · até 64 slots", "composer-badge")
+  );
   dispatchPanel.append(dispatchHeader);
   const dispatchStatus = node("p", undefined, "service-description");
   const form = node("form", undefined, "service-form composer-form");
@@ -77,13 +77,13 @@
   fields.message.placeholder = "Escreva o SMS que seus contatos vão receber…";
   const messageCount = node("small", "0 caracteres", "composer-counter");
   fields.message.parentElement.append(messageCount);
-  fields.message.addEventListener("input", () => { messageCount.textContent = `${fields.message.value.length} caracteres`; });
-  form.addEventListener("reset", () => { messageCount.textContent = "0 caracteres"; });
-  field(
-    "recipients",
-    "Destinatários · um telefone com DDD por linha",
-    "textarea",
-  );
+  fields.message.addEventListener("input", () => {
+    messageCount.textContent = `${fields.message.value.length} caracteres`;
+  });
+  form.addEventListener("reset", () => {
+    messageCount.textContent = "0 caracteres";
+  });
+  field("recipients", "Destinatários · um telefone com DDD por linha", "textarea");
   fields.recipients.rows = 5;
   fields.recipients.maxLength = 10000;
   fields.recipients.placeholder = "11999999999\n21988888888";
@@ -93,7 +93,7 @@
   consent.required = true;
   consentLabel.append(
     consent,
-    node("span", "Tenho autorização dos destinatários para enviar estes SMS."),
+    node("span", "Tenho autorização dos destinatários para enviar estes SMS.")
   );
   const submit = node("button", "Revisar envio", "button primary");
   submit.type = "submit";
@@ -117,16 +117,13 @@
   });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    if (!connected || !canSend() || !form.reportValidity() || dispatching)
-      return;
+    if (!connected || !canSend() || !form.reportValidity() || dispatching) return;
     const raw = fields.recipients.value
       .split(/\r?\n/)
       .map((value) => value.trim())
       .filter(Boolean);
     const numbers = raw.map((value) => value.replace(/[\s().+-]/g, ""));
-    const invalid = numbers.findIndex(
-      (value) => !/^(?:55)?[1-9]\d{9,10}$/.test(value),
-    );
+    const invalid = numbers.findIndex((value) => !/^(?:55)?[1-9]\d{9,10}$/.test(value));
     if (!raw.length || invalid >= 0 || raw.length > 500) {
       feedback.textContent =
         invalid >= 0
@@ -135,9 +132,7 @@
       return;
     }
     const recipients = [
-      ...new Set(
-        numbers.map((value) => `+${value.length <= 11 ? "55" : ""}${value}`),
-      ),
+      ...new Set(numbers.map((value) => `+${value.length <= 11 ? "55" : ""}${value}`))
     ];
     requestId ||= crypto.randomUUID();
     reviewedPayload = {
@@ -145,26 +140,32 @@
       name: fields.name.value.trim(),
       message: fields.message.value.trim(),
       recipients,
-      consent: consent.checked,
+      consent: consent.checked
     };
     submit.disabled = true;
     try {
-    const quote = await call("quote", reviewedPayload, "POST");
-    reviewedPayload.expected_cents = quote.reserved_cents;
-    const money = cents => (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-    summary.replaceChildren(
-      node("p", `${reviewedPayload.name} · ${recipients.length} destinatários`),
-      node("p", "Distribuição automática entre os slots online da chipeira (até 64)."),
-      node("p", reviewedPayload.message, "chip-message"),
-      node(
-        "p",
-        quote.unlimited ? "Conta sem cobrança de disparos." : `${quote.segments} SMS por contato · tarifa R$ ${(quote.rate_mills / 1000).toFixed(3)}. Reserva: ${money(quote.reserved_cents)}. Saldo disponível: ${money(quote.balance_cents)}. A parte não enviada é devolvida após a conferência.`,
-      ),
-    );
-    send.disabled = !quote.unlimited && quote.balance_cents < quote.reserved_cents;
-    review.showModal();
-    } catch (error) { feedback.textContent = error.message; }
-    finally { submit.disabled = !connected || !canSend(); }
+      const quote = await call("quote", reviewedPayload, "POST");
+      reviewedPayload.expected_cents = quote.reserved_cents;
+      const money = (cents) =>
+        (cents / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      summary.replaceChildren(
+        node("p", `${reviewedPayload.name} · ${recipients.length} destinatários`),
+        node("p", "Distribuição automática entre os slots online da chipeira (até 64)."),
+        node("p", reviewedPayload.message, "chip-message"),
+        node(
+          "p",
+          quote.unlimited
+            ? "Conta sem cobrança de disparos."
+            : `${quote.segments} SMS por contato · tarifa R$ ${(quote.rate_mills / 1000).toFixed(3)}. Reserva: ${money(quote.reserved_cents)}. Saldo disponível: ${money(quote.balance_cents)}. A parte não enviada é devolvida após a conferência.`
+        )
+      );
+      send.disabled = !quote.unlimited && quote.balance_cents < quote.reserved_cents;
+      review.showModal();
+    } catch (error) {
+      feedback.textContent = error.message;
+    } finally {
+      submit.disabled = !connected || !canSend();
+    }
   });
   async function sendCampaign() {
     if (dispatching || !reviewedPayload || !connected || !canSend()) return;
@@ -187,7 +188,8 @@
           requestId = null;
           reviewedPayload = null;
           feedback.textContent = error.message;
-        } else feedback.textContent = `${error.message} Repetir a mesma revisão usa o mesmo identificador e evita duplicar a campanha.`;
+        } else
+          feedback.textContent = `${error.message} Repetir a mesma revisão usa o mesmo identificador e evita duplicar a campanha.`;
       }
     } finally {
       dispatching = false;
@@ -217,15 +219,13 @@
       if (current !== epoch || selectedNumber !== number) return;
       inbox.replaceChildren(node("h3", `SMS recebidos · ${number}`));
       if (!result.messages.length)
-        inbox.append(
-          node("p", "Nenhum SMS recebido desde a atribuição deste número."),
-        );
+        inbox.append(node("p", "Nenhum SMS recebido desde a atribuição deste número."));
       result.messages.forEach((message) => {
         const item = node("article", undefined, "chip-message-row");
         item.append(
           node("strong", message.phone_number),
           node("p", message.body, "chip-message"),
-          node("small", message.created_at),
+          node("small", message.created_at)
         );
         inbox.append(item);
       });
@@ -252,15 +252,15 @@
       detail.setAttribute("aria-label", `Campanha ${id}`);
       detail.append(
         node("h2", result.campaign.name),
-        node("p", result.campaign.message_template, "chip-message"),
+        node("p", result.campaign.message_template, "chip-message")
       );
       result.recipients.forEach((item) =>
         detail.append(
           node(
             "p",
-            `${item.phone_number} · ${{ sent: "Enviado", failed: "Falhou", pending: "Pendente", cancelled: "Cancelado" }[item.status] || item.status}${item.error_message ? ` · ${item.error_message}` : ""}`,
-          ),
-        ),
+            `${item.phone_number} · ${{ sent: "Enviado", failed: "Falhou", pending: "Pendente", cancelled: "Cancelado" }[item.status] || item.status}${item.error_message ? ` · ${item.error_message}` : ""}`
+          )
+        )
       );
       detail.append(button("Fechar", () => detail.close()));
       detail.addEventListener("close", () => detail.remove(), { once: true });
@@ -284,17 +284,13 @@
       if (current !== epoch) return;
       connected = result.connected === true;
       if (!connected) {
-        status.textContent =
-          "Conexão pendente. Configure a chave da chipeira no servidor Pulse.";
+        status.textContent = "Conexão pendente. Configure a chave da chipeira no servidor Pulse.";
         phoneList.replaceChildren();
         campaignList.replaceChildren();
         return;
       }
       if (canSend()) await api().request("sms_reconcile", {}, "POST");
-      const [inventory, history] = await Promise.all([
-        call("phones"),
-        call("campaigns"),
-      ]);
+      const [inventory, history] = await Promise.all([call("phones"), call("campaigns")]);
       if (current !== epoch) return;
       phones = inventory.phones;
       status.textContent = phones.length
@@ -308,27 +304,22 @@
           node("strong", phone.phoneNumber),
           node(
             "small",
-            `${phone.operator || "Operadora não identificada"} · ${phone.online ? "Online" : "Offline"}`,
-          ),
+            `${phone.operator || "Operadora não identificada"} · ${phone.online ? "Online" : "Offline"}`
+          )
         );
         row.append(
           info,
-          button("Mensagens recebidas", () => showMessages(phone.phoneNumber)),
+          button("Mensagens recebidas", () => showMessages(phone.phoneNumber))
         );
         phoneList.append(row);
       });
-      if (
-        selectedNumber &&
-        !phones.some((phone) => phone.phoneNumber === selectedNumber)
-      ) {
+      if (selectedNumber && !phones.some((phone) => phone.phoneNumber === selectedNumber)) {
         selectedNumber = null;
         inbox.replaceChildren();
       }
       campaignList.replaceChildren();
       if (!history.campaigns.length)
-        campaignList.append(
-          node("p", "Nenhuma campanha enviada pela chipeira."),
-        );
+        campaignList.append(node("p", "Nenhuma campanha enviada pela chipeira."));
       history.campaigns.forEach((campaign) => {
         const row = node("article", undefined, "chip-number-row");
         const info = node("div");
@@ -336,17 +327,15 @@
           node("strong", campaign.name),
           node(
             "small",
-            `${{ running: "Em andamento", completed: "Finalizada", cancelled: "Cancelada" }[campaign.status]} · ${campaign.sent_count}/${campaign.total} enviados · ${campaign.failed_count} falhas`,
-          ),
+            `${{ running: "Em andamento", completed: "Finalizada", cancelled: "Cancelada" }[campaign.status]} · ${campaign.sent_count}/${campaign.total} enviados · ${campaign.failed_count} falhas`
+          )
         );
         row.append(
           info,
-          button("Detalhes", () => showCampaign(campaign.id)),
+          button("Detalhes", () => showCampaign(campaign.id))
         );
         if (campaign.status === "running" && canSend())
-          row.append(
-            button("Cancelar pendentes", () => cancelCampaign(campaign.id)),
-          );
+          row.append(button("Cancelar pendentes", () => cancelCampaign(campaign.id)));
         campaignList.append(row);
       });
     } catch (error) {
@@ -382,8 +371,7 @@
       dialog.close();
       dialog.remove();
     });
-    status.textContent =
-      "Entre na sua conta para consultar os números da chipeira.";
+    status.textContent = "Entre na sua conta para consultar os números da chipeira.";
     displayState();
   }
   window.addEventListener("pulse-api-mode", () => {
@@ -401,7 +389,7 @@
       refresh();
   }, 15000);
   window.addEventListener("pagehide", () => clearInterval(timer), {
-    once: true,
+    once: true
   });
   api()?.ready?.then(refresh);
   displayState();

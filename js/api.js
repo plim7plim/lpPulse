@@ -1,8 +1,8 @@
 (() => {
   "use strict";
   const endpoint = new URL("../backend/api.php", location.href);
-  const byId = id => document.getElementById(id);
-  const api = window.PulseAPI = { mode: "offline", session: { authenticated: false } };
+  const byId = (id) => document.getElementById(id);
+  const api = (window.PulseAPI = { mode: "offline", session: { authenticated: false } });
   function sessionChanged(session) {
     api.session = session;
     api.mode = session.authenticated ? "server" : "offline";
@@ -14,9 +14,16 @@
       "account-name": session.user?.name,
       "account-detail-email": session.user?.email,
       "account-company": session.company?.name,
-      "account-role": { owner: "Proprietário", manager: "Gerente", operator: "Operador", viewer: "Consulta" }[session.role],
+      "account-role": {
+        owner: "Proprietário",
+        manager: "Gerente",
+        operator: "Operador",
+        viewer: "Consulta"
+      }[session.role]
     };
-    Object.entries(values).forEach(([id, value]) => { byId(id).textContent = value || ""; });
+    Object.entries(values).forEach(([id, value]) => {
+      byId(id).textContent = value || "";
+    });
     byId("environment-note").hidden = !session.test_environment;
     byId("account-feedback").hidden = true;
     byId("admin-nav").hidden = !session.is_admin;
@@ -24,23 +31,29 @@
       byId("admin-view").hidden = true;
       if (location.hash === "#admin") location.hash = "sms-marketing";
     }
-    if (!session.authenticated) document.querySelectorAll("dialog[open]").forEach(dialog => dialog.close());
+    if (!session.authenticated)
+      document.querySelectorAll("dialog[open]").forEach((dialog) => dialog.close());
     window.dispatchEvent(new CustomEvent("pulse-api-mode", { detail: { mode: api.mode } }));
   }
   api.request = async function (action, data = {}, method = "GET") {
     const url = new URL(endpoint);
     url.searchParams.set("action", action);
     const options = { method, credentials: "same-origin", headers: { Accept: "application/json" } };
-    if (method === "GET") Object.entries(data).forEach(([key, value]) => url.searchParams.set(key, String(value)));
+    if (method === "GET")
+      Object.entries(data).forEach(([key, value]) => url.searchParams.set(key, String(value)));
     else {
       options.headers["Content-Type"] = "application/json";
-      if (action !== "login" && api.session.csrf_token) options.headers["X-CSRF-Token"] = api.session.csrf_token;
+      if (action !== "login" && api.session.csrf_token)
+        options.headers["X-CSRF-Token"] = api.session.csrf_token;
       options.body = JSON.stringify(data);
     }
     const response = await fetch(url, options);
     let result;
-    try { result = await response.json(); }
-    catch { throw new Error("O servidor não está disponível. Tente novamente."); }
+    try {
+      result = await response.json();
+    } catch {
+      throw new Error("O servidor não está disponível. Tente novamente.");
+    }
     if (!response.ok || !result.ok) {
       const error = new Error(result.error?.message || "Não foi possível concluir a operação.");
       error.code = result.error?.code;
@@ -55,7 +68,7 @@
     byId("login-notice").hidden = !message;
   }
   const loginButton = byId("login-form").querySelector("button[type=submit]");
-  byId("login-form").addEventListener("submit", async event => {
+  byId("login-form").addEventListener("submit", async (event) => {
     event.preventDefault();
     if (loginButton.disabled) return;
     loginButton.disabled = true;
@@ -71,7 +84,9 @@
         byId("company-id").required = true;
       }
       notice(error.message);
-    } finally { loginButton.disabled = false; }
+    } finally {
+      loginButton.disabled = false;
+    }
   });
   byId("exit").addEventListener("click", async () => {
     byId("exit").disabled = true;
@@ -81,11 +96,19 @@
     } catch (error) {
       byId("account-feedback").textContent = error.message;
       byId("account-feedback").hidden = false;
-    } finally { byId("exit").disabled = false; }
+    } finally {
+      byId("exit").disabled = false;
+    }
   });
   api.ready = (async () => {
-    try { sessionChanged(await api.request("session")); }
-    catch (error) { sessionChanged({ authenticated: false }); notice(error.message); }
-    finally { loginButton.disabled = false; loginButton.textContent = "Entrar"; }
+    try {
+      sessionChanged(await api.request("session"));
+    } catch (error) {
+      sessionChanged({ authenticated: false });
+      notice(error.message);
+    } finally {
+      loginButton.disabled = false;
+      loginButton.textContent = "Entrar";
+    }
   })();
 })();

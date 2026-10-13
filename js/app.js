@@ -3,7 +3,7 @@
 const contactNumber = "";
 const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
 const revealElements = document.querySelectorAll(
-  ".intro > *, .summary, .landing-prices, .brand-strip, .contact > *, footer",
+  ".intro > *, .summary, .landing-prices, .brand-strip, .contact > *, footer"
 );
 
 if (!motionPreference.matches && "IntersectionObserver" in window) {
@@ -16,7 +16,7 @@ if (!motionPreference.matches && "IntersectionObserver" in window) {
         }
       });
     },
-    { threshold: 0.12 },
+    { threshold: 0.12 }
   );
 
   revealElements.forEach((element, index) => {

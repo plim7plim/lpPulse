@@ -5,8 +5,7 @@
   let tickets = demoTickets;
   let notifications = demoNotifications;
   const server = () => window.PulseStore?.mode === "server";
-  const editable = () =>
-    !server() || window.PulseAPI?.session?.role !== "viewer";
+  const editable = () => !server() || window.PulseAPI?.session?.role !== "viewer";
   let epoch = 0;
   let refreshTask = null;
   const apiFeedback = document.createElement("p");
@@ -22,8 +21,7 @@
   $("#ticket-detail-dialog").append(detailError);
   function apiError(error) {
     const target = $("#ticket-detail-dialog").open ? detailError : apiFeedback;
-    target.textContent =
-      error.message || "Não foi possível consultar o atendimento.";
+    target.textContent = error.message || "Não foi possível consultar o atendimento.";
     target.hidden = false;
   }
   function parseDate(value) {
@@ -44,8 +42,8 @@
       messages: messages.map((message) => ({
         text: message.body,
         date: parseDate(message.created_at),
-        author: message.author_name || "Usuário",
-      })),
+        author: message.author_name || "Usuário"
+      }))
     };
   }
   async function loadServer() {
@@ -56,7 +54,7 @@
       try {
         const results = await Promise.allSettled([
           window.PulseAPI.request("tickets"),
-          window.PulseAPI.request("notifications"),
+          window.PulseAPI.request("notifications")
         ]);
         if (current !== epoch || !server()) return;
         results.forEach((result, index) => {
@@ -65,16 +63,14 @@
             return;
           }
           if (index === 0)
-            tickets = (result.value.items || []).map((item) =>
-              normalizeTicket(item),
-            );
+            tickets = (result.value.items || []).map((item) => normalizeTicket(item));
           else
             notifications = (result.value.items || []).map((item) => ({
               id: String(item.id),
               text: item.title,
               ticketId: item.ticket_id ? String(item.ticket_id) : null,
               date: parseDate(item.created_at),
-              read: !!item.read_at,
+              read: !!item.read_at
             }));
         });
         renderTickets();
@@ -108,13 +104,13 @@
     technical: "Suporte Técnico",
     commercial: "Comercial",
     financial: "Financeiro",
-    other: "Outros",
+    other: "Outros"
   };
   const states = {
     open: "Aberto",
     in_progress: "Em atendimento",
     waiting_customer: "Aguardando cliente",
-    closed: "Encerrado",
+    closed: "Encerrado"
   };
   let selectedTicket = null;
   let files = [];
@@ -124,7 +120,7 @@
       day: "2-digit",
       month: "2-digit",
       hour: "2-digit",
-      minute: "2-digit",
+      minute: "2-digit"
     });
   function element(tag, text, className = "") {
     const node = document.createElement(tag);
@@ -142,28 +138,21 @@
     const count = notifications.filter((item) => !item.read).length;
     $("#notification-count").hidden = count === 0;
     $("#notification-count").textContent = count;
-    $("#notifications-toggle").setAttribute(
-      "aria-label",
-      `Notificações (${count} não lidas)`,
-    );
+    $("#notifications-toggle").setAttribute("aria-label", `Notificações (${count} não lidas)`);
     if (!notifications.length)
       list.append(element("p", "Nenhuma notificação nesta sessão.", "empty"));
     notifications.forEach((item) => {
       const button = element(
         "button",
         item.text,
-        "notification-item" + (item.read ? "" : " unread"),
+        "notification-item" + (item.read ? "" : " unread")
       );
       button.append(element("small", formatDate(item.date)));
       button.onclick = async () => {
         if (server()) {
           const current = epoch;
           try {
-            await window.PulseAPI.request(
-              "notifications",
-              { op: "read", id: item.id },
-              "POST",
-            );
+            await window.PulseAPI.request("notifications", { op: "read", id: item.id }, "POST");
             if (current !== epoch || !server()) return;
           } catch (error) {
             apiError(error);
@@ -189,14 +178,13 @@
         (filter === "all" || filter === ticket.status) &&
         `${ticket.code} ${ticket.description} ${categories[ticket.category]}`
           .toLocaleLowerCase("pt-BR")
-          .includes(query),
+          .includes(query)
     );
     list.forEach((ticket) => {
       const row = document.createElement("tr");
       const description = element(
         "td",
-        ticket.description.slice(0, 65) +
-          (ticket.description.length > 65 ? "…" : ""),
+        ticket.description.slice(0, 65) + (ticket.description.length > 65 ? "…" : "")
       );
       description.append(element("small", categories[ticket.category]));
       const state = document.createElement("td");
@@ -204,8 +192,8 @@
         element(
           "span",
           states[ticket.status],
-          "badge " + (ticket.status === "closed" ? "done" : "preparation"),
-        ),
+          "badge " + (ticket.status === "closed" ? "done" : "preparation")
+        )
       );
       const action = document.createElement("td");
       const button = element("button", "Ver chamado", "row-action");
@@ -216,7 +204,7 @@
         description,
         state,
         element("td", formatDate(ticket.updated)),
-        action,
+        action
       );
       rows.append(row);
     });
@@ -244,7 +232,7 @@
       const row = element(
         "div",
         `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB`,
-        "file-row",
+        "file-row"
       );
       const remove = element("button", "Remover", "text-button");
       remove.type = "button";
@@ -266,10 +254,7 @@
     const valid =
       files.length + incoming.length <= 5 &&
       incoming.every(
-        (file) =>
-          file.size <= 10 * 1024 * 1024 &&
-          file.size > 0 &&
-          allowed.test(file.name),
+        (file) => file.size <= 10 * 1024 * 1024 && file.size > 0 && allowed.test(file.name)
       );
     $("#ticket-error").hidden = valid;
     if (valid) {
@@ -296,17 +281,16 @@
             category: $("#ticket-category").value,
             description,
             contact_phone: $("#ticket-phone").value.trim(),
-            contact_email: $("#ticket-email").value.trim(),
+            contact_email: $("#ticket-email").value.trim()
           },
-          "POST",
+          "POST"
         );
         if (current !== epoch || !server()) return;
         $("#ticket-dialog").close();
         $("#ticket-search").value = "";
         $("#ticket-filter").value = "all";
         await loadServer();
-        if (current === epoch && server())
-          await openDetail(String(response.id));
+        if (current === epoch && server()) await openDetail(String(response.id));
       } catch (error) {
         $("#ticket-error").hidden = false;
         $("#ticket-error").textContent = error.message;
@@ -330,7 +314,7 @@
         urls.add(url);
         return { name: file.name, url };
       }),
-      messages: [{ text: description, date: now }],
+      messages: [{ text: description, date: now }]
     };
     tickets.unshift(ticket);
     $("#ticket-search").value = "";
@@ -346,13 +330,10 @@
       try {
         const response = await window.PulseAPI.request("tickets", {
           op: "detail",
-          id: String(id),
+          id: String(id)
         });
         if (current !== epoch || !server()) return;
-        selectedTicket = normalizeTicket(
-          response.ticket,
-          response.messages || [],
-        );
+        selectedTicket = normalizeTicket(response.ticket, response.messages || []);
       } catch (error) {
         apiError(error);
         return;
@@ -370,12 +351,9 @@
     selectedTicket.messages.forEach((message) => {
       const card = element("article", "", "ticket-message");
       card.append(
-        element(
-          "b",
-          server() ? message.author || "Usuário" : "Você · demonstração",
-        ),
+        element("b", server() ? message.author || "Usuário" : "Você · demonstração"),
         element("small", formatDate(message.date)),
-        element("p", message.text),
+        element("p", message.text)
       );
       thread.append(card);
     });
@@ -391,16 +369,13 @@
     }
     detailError.hidden = true;
     $("#ticket-reply-form").reset();
-    $("#ticket-reply").disabled =
-      selectedTicket.status === "closed" || !editable();
+    $("#ticket-reply").disabled = selectedTicket.status === "closed" || !editable();
     $("#ticket-reply-form button[type=submit]")?.removeAttribute("disabled");
-    $("#ticket-reply-form .primary").disabled =
-      selectedTicket.status === "closed" || !editable();
+    $("#ticket-reply-form .primary").disabled = selectedTicket.status === "closed" || !editable();
     $("#toggle-ticket-status").disabled = !editable();
     $("#toggle-ticket-status").textContent =
       selectedTicket.status === "closed" ? "Reabrir ticket" : "Encerrar ticket";
-    if (!$("#ticket-detail-dialog").open)
-      $("#ticket-detail-dialog").showModal();
+    if (!$("#ticket-detail-dialog").open) $("#ticket-detail-dialog").showModal();
   }
   $("#ticket-reply-form").onsubmit = async (event) => {
     event.preventDefault();
@@ -412,11 +387,7 @@
       const submit = $("#ticket-reply-form .primary");
       submit.disabled = true;
       try {
-        await window.PulseAPI.request(
-          "tickets",
-          { op: "reply", id, body: text },
-          "POST",
-        );
+        await window.PulseAPI.request("tickets", { op: "reply", id, body: text }, "POST");
         if (current !== epoch || !server()) return;
         await loadServer();
         if (current === epoch && server()) await openDetail(id);
@@ -429,10 +400,7 @@
     }
     selectedTicket.messages.push({ text, date: Date.now() });
     selectedTicket.updated = Date.now();
-    notify(
-      `${selectedTicket.code}: mensagem adicionada localmente.`,
-      selectedTicket.id,
-    );
+    notify(`${selectedTicket.code}: mensagem adicionada localmente.`, selectedTicket.id);
     renderTickets();
     openDetail(selectedTicket.id);
   };
@@ -447,7 +415,7 @@
         await window.PulseAPI.request(
           "tickets",
           { op: selectedTicket.status === "closed" ? "reopen" : "close", id },
-          "POST",
+          "POST"
         );
         if (current !== epoch || !server()) return;
         await loadServer();
@@ -459,19 +427,17 @@
       }
       return;
     }
-    selectedTicket.status =
-      selectedTicket.status === "closed" ? "open" : "closed";
+    selectedTicket.status = selectedTicket.status === "closed" ? "open" : "closed";
     selectedTicket.updated = Date.now();
     notify(
       `${selectedTicket.code}: ${states[selectedTicket.status].toLowerCase()} na demonstração.`,
-      selectedTicket.id,
+      selectedTicket.id
     );
     renderTickets();
     openDetail(selectedTicket.id);
   };
   $("#open-ticket").onclick = $("#first-ticket").onclick = openTicket;
-  $("#close-ticket").onclick = $("#cancel-ticket").onclick = () =>
-    $("#ticket-dialog").close();
+  $("#close-ticket").onclick = $("#cancel-ticket").onclick = () => $("#ticket-dialog").close();
   $("#close-ticket-detail").onclick = () => $("#ticket-detail-dialog").close();
   $("#ticket-search").oninput = $("#ticket-filter").onchange = renderTickets;
   function closePopovers() {
@@ -510,11 +476,7 @@
     $("#exit").click();
   };
   document.addEventListener("click", (event) => {
-    if (
-      !event.target.closest(
-        ".header-popover, #notifications-toggle, #account-toggle",
-      )
-    )
+    if (!event.target.closest(".header-popover, #notifications-toggle, #account-toggle"))
       closePopovers();
   });
   document.addEventListener("keydown", (event) => {
@@ -529,11 +491,9 @@
     if ($("#dashboard").hidden) closePopovers();
   }).observe($("#dashboard"), {
     attributes: true,
-    attributeFilter: ["hidden"],
+    attributeFilter: ["hidden"]
   });
-  window.addEventListener("pagehide", () =>
-    urls.forEach((url) => URL.revokeObjectURL(url)),
-  );
+  window.addEventListener("pagehide", () => urls.forEach((url) => URL.revokeObjectURL(url)));
   window.addEventListener("pulse-api-mode", () => {
     epoch++;
     refreshTask = null;

@@ -8,38 +8,71 @@
       name="description"
       content="Pulse: empresa de disparos de mensagens pelo WhatsApp. Solicite um orçamento para sua campanha."
     />
-    <link
-      rel="icon"
-      type="image/svg+xml"
-      href="assets/favicon.svg"
-    />
-    <link rel="stylesheet" href="css/style.css?v=20261008-2" /><link rel="stylesheet" href="css/tarifas.css?v=20261008-1" />
-  <link rel="stylesheet" href="css/cookies.css?v=20261008-4">
-</head>
+    <link rel="stylesheet" href="css/base.css?v=20261013-visual4" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="stylesheet" href="css/style.css?v=20261013-visual4" />
+    <link rel="stylesheet" href="css/tarifas.css?v=20261013-visual4" />
+    <link rel="stylesheet" href="css/cookies.css?v=20261013-visual4" />
+    <script src="js/tema.js?v=20261013-visual4"></script>
+  </head>
   <body>
     <canvas id="dispatch-background" aria-hidden="true"></canvas>
     <header>
-      <a class="brand" href="#inicio" aria-label="Pulse início"
-        >pulse<span>.</span></a
-      >
+      <a class="brand" href="#inicio" aria-label="Pulse início">pulse<span>.</span></a>
       <div class="header-actions">
-        <a class="client-link" href="paginas/clientes.html">Área do cliente</a>
-        <a class="button outline" href="#contato">Contate-nos</a>
+        <nav class="public-nav" aria-label="Navegação principal">
+          <a href="#pacotes">Pacotes e tarifas</a><a href="#contato">Contato</a>
+        </nav>
+        <a class="client-link" href="paginas/acesso.html#cadastro">Criar conta</a>
+        <a class="button primary" href="paginas/clientes.html">Área do cliente</a>
+
+        <button type="button" class="theme-toggle" data-theme-toggle aria-label="Alternar tema">
+          ☾
+        </button>
       </div>
     </header>
     <main id="inicio">
       <section class="hero">
         <div class="intro">
           <span class="label">EMPRESA DE DISPAROS PELO WHATSAPP</span>
-          <h1>Sua mensagem.<br />Seu cliente.<br /><span>Mais perto.</span></h1>
+          <h1>Sua mensagem. Seu cliente.<br /><span>Mais perto.</span></h1>
           <p>
-            Campanhas de WhatsApp para divulgar sua empresa e retomar conversas
-            com seus clientes.
+            Campanhas de WhatsApp para divulgar sua empresa e retomar conversas com seus clientes.
           </p>
           <a class="button primary" href="#contato">Contate-nos</a>
           <a class="pricing-link" href="#pacotes">Ver pacotes e tarifas ↓</a>
         </div>
         <div class="summary" aria-label="Recursos do Pulse">
+          <svg class="dispatch-art" viewBox="0 0 400 180" fill="none" aria-hidden="true">
+            <g class="route" stroke-width="1.5">
+              <path d="M80 90H145Q175 90 175 40H320" />
+              <path d="M80 90H320" />
+              <path d="M80 90H145Q175 90 175 140H320" />
+            </g>
+            <g stroke-width="2">
+              <path class="packet" d="M80 90H145Q175 90 175 40H320" />
+              <path class="packet" d="M80 90H320" />
+              <path class="packet" d="M80 90H145Q175 90 175 140H320" />
+            </g>
+            <rect class="hub" x="30" y="62" width="56" height="56" rx="18" />
+            <path
+              class="message-symbol"
+              d="M44 79h28v19H55l-8 7v-7h-3z"
+              stroke-width="1.5"
+              stroke-linejoin="round"
+            />
+            <path class="message-symbol" d="m49 84 9 7 9-7" stroke-width="1.5" />
+            <g class="endpoint">
+              <rect x="304" y="22" width="66" height="36" rx="12" />
+              <rect x="304" y="72" width="66" height="36" rx="12" />
+              <rect x="304" y="122" width="66" height="36" rx="12" />
+            </g>
+            <g class="message-symbol" stroke-width="1.5" stroke-linecap="round">
+              <path d="m324 40 7 6 13-13" />
+              <path d="m324 90 7 6 13-13" />
+              <path d="m324 140 7 6 13-13" />
+            </g>
+          </svg>
           <div>
             <span>01</span>
             <h2>Seu público</h2>
@@ -54,40 +87,88 @@
           </div>
         </div>
       </section>
-            <section id="pacotes" class="pricing-panel landing-prices" aria-labelledby="pricing-title">
-              <div class="service-panel-top"><h2 id="pricing-title">Pacotes e tarifas</h2><a class="pricing-label" href="#contato">Fale com a Pulse ↗</a></div>
-              <div class="pricing-grid">
-                <div class="pricing-group">
-                  <h3 id="sms-prices-title">SMS</h3>
-                  <div class="table-scroll" role="region" aria-labelledby="sms-prices-title" tabindex="0">
-                    <table class="price-table">
-                      <thead><tr><th scope="col">Pacote</th><th scope="col">Preço</th><th scope="col">Por SMS</th></tr></thead>
-                      <tbody>
-                        <tr><th scope="row">10.000 SMS</th><td>R$ 500,00</td><td>R$ 0,050</td></tr>
-                        <tr><th scope="row">15.000 SMS</th><td>R$ 720,00</td><td>R$ 0,048</td></tr>
-                        <tr><th scope="row">20.000 SMS</th><td>R$ 920,00</td><td>R$ 0,046</td></tr>
-                        <tr><th scope="row">Avulso</th><td>Mín. R$ 500,00</td><td><strong>R$ 0,045/SMS</strong></td></tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div class="pricing-group">
-                  <h3 id="whatsapp-prices-title">WhatsApp <span>Recarga mínima de R$ 2.500</span></h3>
-                  <div class="table-scroll" role="region" aria-labelledby="whatsapp-prices-title" tabindex="0">
-                    <table class="price-table">
-                      <thead><tr><th scope="col">Faixa de recarga</th><th scope="col">Tarifa / crédito</th></tr></thead>
-                      <tbody>
-                        <tr><th scope="row">Até R$ 5.000</th><td>R$ 0,45</td></tr>
-                        <tr><th scope="row">Até R$ 30.000</th><td>R$ 0,40</td></tr>
-                        <tr><th scope="row">Acima de R$ 30.000</th><td>R$ 0,35</td></tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <p class="pricing-example">R$ 2.500 ÷ 0,45 ≈ <strong>5.555 créditos WhatsApp.</strong></p>
-                </div>
-              </div>
-              <p class="pricing-note">Escolha o pacote para sua campanha e fale com a Pulse para contratar.</p>
-            </section>
+      <section id="pacotes" class="pricing-panel landing-prices" aria-labelledby="pricing-title">
+        <div class="service-panel-top">
+          <h2 id="pricing-title">Pacotes e tarifas</h2>
+          <a class="pricing-label" href="#contato">Fale com a Pulse ↗</a>
+        </div>
+        <div class="pricing-grid">
+          <div class="pricing-group">
+            <h3 id="sms-prices-title">SMS</h3>
+            <div class="table-scroll" role="region" aria-labelledby="sms-prices-title" tabindex="0">
+              <table class="price-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Pacote</th>
+                    <th scope="col">Preço</th>
+                    <th scope="col">Por SMS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">10.000 SMS</th>
+                    <td>R$ 500,00</td>
+                    <td>R$ 0,050</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">15.000 SMS</th>
+                    <td>R$ 720,00</td>
+                    <td>R$ 0,048</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">20.000 SMS</th>
+                    <td>R$ 920,00</td>
+                    <td>R$ 0,046</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Avulso</th>
+                    <td>Mín. R$ 500,00</td>
+                    <td><strong>R$ 0,045/SMS</strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="pricing-group">
+            <h3 id="whatsapp-prices-title">WhatsApp <span>Recarga mínima de R$ 2.500</span></h3>
+            <div
+              class="table-scroll"
+              role="region"
+              aria-labelledby="whatsapp-prices-title"
+              tabindex="0"
+            >
+              <table class="price-table">
+                <thead>
+                  <tr>
+                    <th scope="col">Faixa de recarga</th>
+                    <th scope="col">Tarifa / crédito</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">Até R$ 5.000</th>
+                    <td>R$ 0,45</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Até R$ 30.000</th>
+                    <td>R$ 0,40</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Acima de R$ 30.000</th>
+                    <td>R$ 0,35</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p class="pricing-example">
+              R$ 2.500 ÷ 0,45 ≈ <strong>5.555 créditos WhatsApp.</strong>
+            </p>
+          </div>
+        </div>
+        <p class="pricing-note">
+          Escolha o pacote para sua campanha e fale com a Pulse para contratar.
+        </p>
+      </section>
       <div class="brand-strip" aria-hidden="true">
         <span>Uma mensagem abre uma conversa.</span
         ><span class="strip-mark">pulse<span>.</span></span>
@@ -99,13 +180,7 @@
         </div>
         <div class="contact-action">
           <button class="button primary whatsapp-contact" type="button">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path
                 d="M20.5 11.6a8.5 8.5 0 0 1-12.6 7.5L3 20.5l1.4-4.7a8.5 8.5 0 1 1 16.1-4.2Z"
                 stroke="currentColor"
@@ -129,6 +204,6 @@
     </footer>
     <script src="js/app.js?v=20261008-1"></script>
     <script src="js/background.js?v=20261008-3"></script>
-  <script src="js/cookies.js?v=20261008-4"></script>
-</body>
+    <script src="js/cookies.js?v=20261008-4"></script>
+  </body>
 </html>

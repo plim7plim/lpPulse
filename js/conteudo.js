@@ -4,25 +4,24 @@ const exampleInvoices = [
     description: "Campanha de outubro",
     due: "2026-10-15",
     amount: 350,
-    status: "open",
+    status: "open"
   },
   {
     id: "EX-002",
     description: "Campanha de relacionamento",
     due: "2026-10-05",
     amount: 480,
-    status: "paid",
+    status: "paid"
   },
   {
     id: "EX-003",
     description: "Proposta cancelada",
     due: "2026-10-02",
     amount: 120,
-    status: "cancelled",
-  },
+    status: "cancelled"
+  }
 ];
-const money = (value) =>
-  value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const money = (value) => value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 function renderInvoices() {
   const table = $("#invoice-table");
   table.replaceChildren();
@@ -30,8 +29,7 @@ function renderInvoices() {
   exampleInvoices
     .filter(
       (invoice) =>
-        $("#invoice-filter").value === "all" ||
-        invoice.status === $("#invoice-filter").value,
+        $("#invoice-filter").value === "all" || invoice.status === $("#invoice-filter").value
     )
     .forEach((invoice) => {
       const row = document.createElement("tr");
@@ -40,7 +38,7 @@ function renderInvoices() {
         invoice.description,
         invoice.due.split("-").reverse().join("/"),
         money(invoice.amount),
-        labels[invoice.status],
+        labels[invoice.status]
       ].forEach((value) => {
         const cell = document.createElement("td");
         cell.textContent = value;
@@ -57,7 +55,7 @@ function renderInvoices() {
           invoice.id,
           invoice.description,
           `Valor: ${money(invoice.amount)}`,
-          `Status: ${labels[invoice.status]}`,
+          `Status: ${labels[invoice.status]}`
         ].forEach((value) => {
           const line = document.createElement("p");
           line.textContent = value;
@@ -82,10 +80,10 @@ document.querySelectorAll("[data-plan]").forEach(
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
           ? "instant"
           : "smooth",
-        block: "center",
+        block: "center"
       });
       $("#mobile-lines").focus({ preventScroll: true });
-    }),
+    })
 );
 document.querySelectorAll("[data-destination]").forEach(
   (button) =>
@@ -95,8 +93,8 @@ document.querySelectorAll("[data-destination]").forEach(
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
           ? "instant"
           : "smooth",
-        block: "center",
+        block: "center"
       });
       $("#esim-start").focus({ preventScroll: true });
-    }),
+    })
 );

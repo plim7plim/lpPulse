@@ -4,7 +4,8 @@ Integração SMS com a chipeira: configuração, telas e limites em [docs/chipei
 
 Cobrança de disparos, administração e publicação na Locaweb: [docs/producao.md](docs/producao.md).
 Cadastro com confirmação de e-mail e recuperação de senha: [docs/cadastro-senha.md](docs/cadastro-senha.md).
-Banco existente precisa das migrações `006_sms_billing_admin.sql` e `007_registration.sql`; banco vazio usa `schema.sql` atualizado.
+Estoque, compra com saldo, entrega e SMS dos números: [docs/numeros-entrega.md](docs/numeros-entrega.md).
+Banco existente precisa das migrações `006_sms_billing_admin.sql`, `007_registration.sql` e `008_number_delivery.sql`; banco vazio usa `schema.sql` atualizado.
 
 ## Estrutura
 
@@ -37,3 +38,7 @@ Para hospedar, gere o pacote com `scripts/build-production.ps1` e publique apena
 `public/`. A pasta `private/`, credenciais e banco devem permanecer fora do webroot.
 Identidade do painel em `css/clientes.css`. A limpeza técnica e os arquivos
 retirados estão registrados em [docs/limpeza-tecnica.md](docs/limpeza-tecnica.md).
+
+## Formatação do código
+
+Use `npm ci` e `npm run format` para padronizar HTML, CSS, JavaScript e PHP. `npm run format:check` verifica o padrão sem editar. São ferramentas de desenvolvimento; o site continua usando PHP e JavaScript sem build ou dependências Node em produção. Bibliotecas de terceiros em `js/vendor/` ficam preservadas. HTML/CSS/JS usam dois espaços; PHP e PowerShell, quatro. SQL mantém o formato das migrações. `.editorconfig` orienta o editor, e `.prettierrc.json` registra as regras.

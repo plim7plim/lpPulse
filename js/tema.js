@@ -1,14 +1,13 @@
 (() => {
-  let theme = "dark";
+  let theme = "light";
   try {
-    theme = localStorage.getItem("pulse-theme") || "dark";
+    theme = localStorage.getItem("pulse-theme") || "light";
   } catch {}
   function applyTheme() {
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
     document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
-      const label =
-        theme === "dark" ? "Ativar modo claro" : "Ativar modo noturno";
+      const label = theme === "dark" ? "Ativar modo claro" : "Ativar modo noturno";
       button.textContent = theme === "dark" ? "☀" : "☾";
       button.setAttribute("aria-label", label);
       button.title = label;
