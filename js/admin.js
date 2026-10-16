@@ -183,6 +183,32 @@
         })
       );
       table(
+        "admin-contracts",
+        ["Contrato", "Cliente", "Modalidade", "Situação", "Validade", "Ações"],
+        (data.contracts || []).map((c) => {
+          const controls = node("div");
+          controls.className = "module-actions";
+          if (c.status === "paid")
+            controls.append(
+              action("Cancelar e devolver", () =>
+                save(
+                  { op: "contract_cancel", company_id: c.company_id, id: c.id },
+                  "Cancelar contrato pendente",
+                  `Devolver ${money(c.price_cents / 100)} ao saldo. Só será permitido se nenhum número estiver separado ou entregue.`
+                )
+              )
+            );
+          return [
+            c.id,
+            c.name,
+            c.product === "online" ? "Online 30 dias" : "100 números / 30 dias",
+            statusLabel(c.status),
+            c.expires_at || "Após primeira entrega",
+            controls
+          ];
+        })
+      );
+      table(
         "admin-credits",
         ["Recarga", "Cliente", "Valor", "Situação", "Ações"],
         data.credits.map((credit) => {
@@ -194,7 +220,7 @@
                 save(
                   { op: "credit", company_id: credit.company_id, id: credit.id, status: "paid" },
                   "Confirmar pagamento recebido",
-                  `Liberar ${money(credit.amount)} para ${credit.name}. Confira o extrato bancário antes de confirmar.`
+                  `Liberar ${credit.sms_quantity ? Number(credit.sms_quantity).toLocaleString("pt-BR") + " créditos SMS, compra de " : ""}${money(credit.amount)} para ${credit.name}. Confira o extrato bancário antes de confirmar.`
                 )
               ),
               action("Cancelar", () =>
@@ -211,7 +237,7 @@
               )
             );
           return [
-            credit.id,
+            `${credit.id}${credit.sms_quantity ? " · " + Number(credit.sms_quantity).toLocaleString("pt-BR") + " SMS" : ""}`,
             credit.name,
             money(credit.amount),
             statusLabel(credit.status),
@@ -320,7 +346,11 @@
           );
           if (["submitted", "reviewing", "quoted"].includes(order.status) && details.quantity)
             controls.append(
-              action("Enviar orçamento", () => {
+              action("Enviar orçamento", async () => {
+                const catalog = await window.PulsePricing?.ready;
+                const item = catalog?.numbers.find(
+                  (item) => item.id === (order.service === "whatsapp_number" ? "whatsapp" : "sms")
+                );
                 quoteTarget = order;
                 byId("admin-quote-title").textContent =
                   `Pedido #${order.id} · ${order.name} · ${details.quantity} número(s)`;
@@ -328,7 +358,9 @@
                 form.reset();
                 form.elements.amount.value = order.amount_cents
                   ? (Number(order.amount_cents) / 100).toFixed(2)
-                  : "";
+                  : item
+                    ? ((item.price_cents * details.quantity) / 100).toFixed(2)
+                    : "";
                 form.elements.note.value = order.quote_note || "";
                 byId("admin-quote-feedback").textContent = "";
                 quoteDialog.showModal();

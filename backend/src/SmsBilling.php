@@ -2,6 +2,7 @@
 declare(strict_types=1);
 namespace Pulse;
 require_once __DIR__ . "/ChipeiraGateway.php";
+require_once __DIR__ . "/SmsPurchases.php";
 
 final class SmsBilling
 {
@@ -70,15 +71,28 @@ final class SmsBilling
                 throw new PanelError("invalid_number", "Use telefones brasileiros com +55 e DDD.");
             }
         }
+        $channel = $data["sms_channel"] ?? "sms";
+        if (!in_array($channel, ["sms", "longcode"], true)) {
+            throw new PanelError("invalid_channel", "Modalidade de SMS inválida.");
+        }
         $account = $this->q(
             "SELECT rate_mills,unlimited FROM sms_billing_accounts WHERE company_id=?",
             [$company],
         )->fetch(\PDO::FETCH_ASSOC) ?: ["rate_mills" => 50, "unlimited" => 0];
+        if ($channel === "longcode") {
+            $account["rate_mills"] = SmsPurchases::quote(1, "longcode")["rate_mills"];
+        }
         $segments = self::segments($message);
         $count = count(array_unique($recipients));
         $cents = $account["unlimited"]
             ? 0
             : intdiv($segments * $count * (int) $account["rate_mills"] + 9, 10);
+        $purchasePlan = $account["unlimited"]
+            ? null
+            : SmsPurchases::plan($this->db, $company, $segments * $count, $channel);
+        if ($purchasePlan) {
+            $cents = $purchasePlan["cost"];
+        }
         $balance = $this->q(
             "SELECT COALESCE(SUM(amount),0) FROM balance_entries WHERE company_id=?",
             [$company],
@@ -87,6 +101,9 @@ final class SmsBilling
         $parts = explode(".", ltrim((string) $balance, "-"));
         $balanceCents = (int) $parts[0] * 100 + (int) str_pad($parts[1] ?? "", 2, "0");
         return [
+            "sms_credits" => $purchasePlan !== null,
+            "sms_channel" => $channel,
+            "sms_available" => SmsPurchases::available($this->db, $company, $channel),
             "segments" => $segments,
             "recipients" => $count,
             "rate_mills" => (int) $account["rate_mills"],
@@ -124,6 +141,7 @@ final class SmsBilling
         }
         $payload = [
             "op" => "create",
+            "sms_channel" => $data["sms_channel"] ?? "sms",
             "request_id" => $id,
             "name" => PanelValidation::text($data, "name", 120),
             "message" => PanelValidation::text($data, "message", 6400),
@@ -157,7 +175,11 @@ final class SmsBilling
                         409,
                     );
                 }
-                if (!$quote["unlimited"] && $quote["balance_cents"] < $quote["reserved_cents"]) {
+                if (
+                    !$quote["unlimited"] &&
+                    !$quote["sms_credits"] &&
+                    $quote["balance_cents"] < $quote["reserved_cents"]
+                ) {
                     throw new PanelError(
                         "insufficient_balance",
                         "Saldo insuficiente. Solicite uma recarga no Financeiro.",
@@ -177,7 +199,20 @@ final class SmsBilling
                         $quote["reserved_cents"],
                     ],
                 );
-                $this->entry($company, $id, -$quote["reserved_cents"], "reserve");
+                if ($quote["sms_credits"]) {
+                    SmsPurchases::reserve(
+                        $this->db,
+                        $this->db->lastInsertId(),
+                        SmsPurchases::plan(
+                            $this->db,
+                            $company,
+                            $quote["segments"] * $quote["recipients"],
+                            $quote["sms_channel"],
+                        ),
+                    );
+                } else {
+                    $this->entry($company, $id, -$quote["reserved_cents"], "reserve");
+                }
             }
             $this->db->commit();
         } catch (\Throwable $e) {
@@ -269,12 +304,21 @@ final class SmsBilling
                     $row["id"],
                 ])->fetchColumn();
                 if ($current !== "settled") {
-                    $this->entry(
-                        $company,
-                        $row["request_id"],
-                        (int) $row["reserved_cents"] - $cost,
-                        "refund",
+                    $purchaseCost = SmsPurchases::settle(
+                        $this->db,
+                        (string) $row["id"],
+                        $sent * (int) $row["segments"],
                     );
+                    if ($purchaseCost !== null) {
+                        $cost = $purchaseCost;
+                    } else {
+                        $this->entry(
+                            $company,
+                            $row["request_id"],
+                            (int) $row["reserved_cents"] - $cost,
+                            "refund",
+                        );
+                    }
                     $this->q(
                         "UPDATE sms_charges SET status='settled',charged_cents=?,payload='{}' WHERE id=?",
                         [$cost, $row["id"]],
@@ -301,7 +345,9 @@ final class SmsBilling
                 [$company, $request],
             )->fetch(\PDO::FETCH_ASSOC);
             if ($row && $row["status"] === "reserved" && !$row["remote_id"]) {
-                $this->entry($company, $request, (int) $row["reserved_cents"], "refund");
+                if (SmsPurchases::settle($this->db, (string) $row["id"], 0) === null) {
+                    $this->entry($company, $request, (int) $row["reserved_cents"], "refund");
+                }
                 $this->q(
                     "UPDATE sms_charges SET status='rejected',charged_cents=0,payload='{}' WHERE id=?",
                     [$row["id"]],

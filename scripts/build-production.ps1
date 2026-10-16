@@ -17,12 +17,14 @@ Copy-Item -LiteralPath (Join-Path $taskRoot 'backend/src') -Destination (Join-Pa
 foreach ($taskFile in @('api.php', 'webhook.php')) {
     Copy-Item -LiteralPath (Join-Path $taskRoot ('backend/' + $taskFile)) -Destination (Join-Path $taskPublic 'backend')
 }
+New-Item -ItemType Directory -Path (Join-Path $taskPrivate 'assets') | Out-Null
+Copy-Item -LiteralPath (Join-Path $taskRoot 'assets/tarifas.json') -Destination (Join-Path $taskPrivate 'assets')
 foreach ($taskDirectory in @('docs')) {
     Copy-Item -LiteralPath (Join-Path $taskRoot $taskDirectory) -Destination $taskPrivate -Recurse
 }
 New-Item -ItemType Directory -Path (Join-Path $taskPrivate 'scripts'), (Join-Path $taskPrivate 'database') | Out-Null
 Copy-Item -LiteralPath (Join-Path $taskRoot 'database/migrations') -Destination (Join-Path $taskPrivate 'database') -Recurse
-foreach ($taskFile in @('migrate.php', 'reconcile-sms.php', 'create-admin.php', 'check-production.php')) {
+foreach ($taskFile in @('migrate.php', 'reconcile-sms.php', 'create-admin.php', 'check-production.php', 'check-efi.php')) {
     Copy-Item -LiteralPath (Join-Path $taskRoot ('scripts/' + $taskFile)) -Destination (Join-Path $taskPrivate 'scripts')
 }
 New-Item -ItemType Directory -Path (Join-Path $taskPrivate 'backend') | Out-Null

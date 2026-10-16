@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Pulse;
 
-/** Implementar somente após escolher o provedor. Nunca confiar no status enviado pelo navegador. */
+/** O status de pagamento sempre deve ser consultado no servidor do provedor. */
 interface PaymentGateway
 {
     public function name(): string;

@@ -3,6 +3,7 @@ declare(strict_types=1);
 namespace Pulse;
 require_once __DIR__ . "/SmsBilling.php";
 require_once __DIR__ . "/NumberDelivery.php";
+require_once __DIR__ . "/NumberContracts.php";
 
 final class AdminApi
 {
@@ -28,8 +29,11 @@ final class AdminApi
                 "companies" => $this->q(
                     "SELECT c.id,c.name,c.contact_email,c.status,COALESCE(b.rate_mills,50) rate_mills,COALESCE(b.unlimited,0) unlimited,(SELECT COALESCE(SUM(amount),0) FROM balance_entries WHERE company_id=c.id) balance FROM companies c LEFT JOIN sms_billing_accounts b ON b.company_id=c.id WHERE c.deleted_at IS NULL ORDER BY c.id DESC LIMIT 200",
                 )->fetchAll(\PDO::FETCH_ASSOC),
+                "contracts" => $this->q(
+                    "SELECT nc.*,c.name FROM number_contracts nc JOIN companies c ON c.id=nc.company_id ORDER BY nc.id DESC LIMIT 200",
+                )->fetchAll(\PDO::FETCH_ASSOC),
                 "credits" => $this->q(
-                    "SELECT r.id,r.company_id,c.name,r.amount,r.method,r.status,r.created_at FROM credit_requests r JOIN companies c ON c.id=r.company_id ORDER BY r.id DESC LIMIT 200",
+                    "SELECT r.id,r.company_id,c.name,r.amount,r.method,r.status,r.created_at,p.quantity sms_quantity,p.rate_mills,p.channel sms_channel FROM credit_requests r JOIN companies c ON c.id=r.company_id LEFT JOIN sms_purchases p ON p.credit_request_id=r.id ORDER BY r.id DESC LIMIT 200",
                 )->fetchAll(\PDO::FETCH_ASSOC),
                 "orders" => $this->q(
                     "SELECT r.id,r.company_id,c.name,r.service,r.details,r.status,r.created_at,f.amount_cents,f.quote_note,f.status purchase_status FROM service_requests r JOIN companies c ON c.id=r.company_id LEFT JOIN number_fulfillments f ON f.service_request_id=r.id WHERE r.service IN ('sms_number','whatsapp_number') ORDER BY r.id DESC LIMIT 200",
@@ -50,6 +54,7 @@ final class AdminApi
         }
         $op = PanelValidation::choice($data, "op", [
             "billing",
+            "contract_cancel",
             "company_status",
             "credit",
             "order",
@@ -64,6 +69,12 @@ final class AdminApi
             return $delivery->stock($data, $this->user);
         }
         $company = PanelValidation::id($data["company_id"] ?? null);
+        if ($op === "contract_cancel") {
+            return (new NumberContracts(
+                $this->db,
+                new ChipeiraGateway($this->chipeira),
+            ))->cancelPending($company, $this->user, $data);
+        }
         if ($op === "number_quote") {
             return $delivery->quote($company, $data, $this->user);
         }
@@ -142,7 +153,8 @@ final class AdminApi
                 if ($credit["status"] !== "pending") {
                     throw new PanelError("credit_closed", "Esta recarga já foi encerrada.", 409);
                 }
-                if ($status === "paid") {
+                $smsPurchase = SmsPurchases::confirm($this->db, $company, $id, $status);
+                if ($status === "paid" && !$smsPurchase) {
                     $this->q(
                         "INSERT INTO balance_entries(company_id,credit_request_id,entry_key,type,amount,description,occurred_at) VALUES(?,?,?,'credit',?,?,UTC_TIMESTAMP())",
                         [

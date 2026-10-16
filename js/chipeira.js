@@ -69,6 +69,15 @@
     form.append(wrapper);
     return input;
   }
+  const channel = node("select");
+  channel.setAttribute("aria-label", "Modalidade de envio SMS");
+  channel.append(
+    new Option("SMS · créditos padrão", "sms"),
+    new Option("SMS longcode · R$ 0,35", "longcode")
+  );
+  const channelLabel = node("label", undefined, "composer-channel");
+  channelLabel.append(node("span", "Modalidade de envio"), channel);
+
   field("name", "Nome da campanha").maxLength = 120;
   fields.name.placeholder = "Ex.: Aviso aos clientes";
   field("message", "Mensagem", "textarea").maxLength = 1600;
@@ -100,7 +109,7 @@
   const feedback = node("p", undefined, "service-feedback");
   feedback.setAttribute("role", "status");
   form.append(consentLabel, submit);
-  dispatchPanel.append(dispatchStatus, form, feedback);
+  dispatchPanel.append(dispatchStatus, channelLabel, form, feedback);
   smsView.insertBefore(dispatchPanel, smsView.querySelector(".pricing-panel, .service-layout"));
   const review = node("dialog", undefined, "service-detail-dialog");
   review.setAttribute("aria-label", "Revisar campanha de SMS");
@@ -112,6 +121,10 @@
   review.append(node("h2", "Revise antes de enviar"), summary, reviewActions);
   document.body.append(review);
   let reviewedPayload = null;
+  channel.addEventListener("change", () => {
+    requestId = null;
+    reviewedPayload = null;
+  });
   form.addEventListener("input", () => {
     requestId = null;
   });
@@ -137,6 +150,7 @@
     requestId ||= crypto.randomUUID();
     reviewedPayload = {
       request_id: requestId,
+      sms_channel: channel.value,
       name: fields.name.value.trim(),
       message: fields.message.value.trim(),
       recipients,
@@ -156,10 +170,13 @@
           "p",
           quote.unlimited
             ? "Conta sem cobrança de disparos."
-            : `${quote.segments} SMS por contato · tarifa R$ ${(quote.rate_mills / 1000).toFixed(3)}. Reserva: ${money(quote.reserved_cents)}. Saldo disponível: ${money(quote.balance_cents)}. A parte não enviada é devolvida após a conferência.`
+            : quote.sms_credits
+              ? `${quote.segments} SMS por contato · consumo de ${quote.segments * quote.recipients} créditos comprados. Disponíveis: ${quote.sms_available}. Valor destes créditos: ${money(quote.reserved_cents)}. SMS não enviados retornam ao lote original.`
+              : `${quote.segments} SMS por contato · tarifa R$ ${(quote.rate_mills / 1000).toFixed(3)}. Reserva: ${money(quote.reserved_cents)}. Saldo disponível: ${money(quote.balance_cents)}. A parte não enviada é devolvida após a conferência.`
         )
       );
-      send.disabled = !quote.unlimited && quote.balance_cents < quote.reserved_cents;
+      send.disabled =
+        !quote.unlimited && !quote.sms_credits && quote.balance_cents < quote.reserved_cents;
       review.showModal();
     } catch (error) {
       feedback.textContent = error.message;

@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Pulse;
 
+require_once __DIR__ . "/SmsPurchases.php";
+
 use PDO;
 use RuntimeException;
 use Throwable;
@@ -66,6 +68,11 @@ final class PaymentConfirmation
             }
 
             $amount = PaymentValidator::cents($local["amount"]);
+            $purchase = $this->db->prepare(
+                "SELECT * FROM sms_purchases WHERE credit_request_id=? FOR UPDATE",
+            );
+            $purchase->execute([$local["credit_request_id"]]);
+            $sms = $purchase->fetch(PDO::FETCH_ASSOC);
             $credited = PaymentValidator::cents($local["credited_amount"]);
             $previousReversal = PaymentValidator::cents($local["reversed_amount"]);
             $remoteReversal = PaymentValidator::cents($remote["reversed_amount"]);
@@ -73,23 +80,55 @@ final class PaymentConfirmation
             $settled = in_array($remote["status"], ["approved", "refunded", "chargeback"], true);
 
             if ($settled && $credited === 0) {
-                $this->entry(
-                    $local,
-                    $amount,
-                    "credit",
-                    "credit",
-                    "Crédito de pagamento confirmado",
-                );
+                if ($sms) {
+                    if ($sms["status"] !== "pending") {
+                        throw new RuntimeException(
+                            "Pacote encerrado; conferência manual necessária.",
+                        );
+                    }
+                    SmsPurchases::confirm(
+                        $this->db,
+                        (string) $local["company_id"],
+                        (string) $local["credit_request_id"],
+                        "paid",
+                    );
+                    $sms["remaining"] = $sms["quantity"];
+                } else {
+                    $this->entry(
+                        $local,
+                        $amount,
+                        "credit",
+                        "credit",
+                        "Crédito de pagamento confirmado",
+                    );
+                }
                 $credited = $amount;
             }
             if ($credited > 0 && $newReversal > $previousReversal) {
-                $this->entry(
-                    $local,
-                    $newReversal - $previousReversal,
-                    "reversal",
-                    "reversal:" . $newReversal,
-                    "Estorno de pagamento confirmado",
-                );
+                if ($sms) {
+                    // Pacotes consumidos/reservados e estornos parciais exigem revisão; não criar saldo fictício.
+                    if (
+                        $newReversal !== $amount ||
+                        (int) $sms["remaining"] !== (int) $sms["quantity"]
+                    ) {
+                        throw new RuntimeException(
+                            "Estorno de pacote consumido ou parcial exige conferência administrativa.",
+                        );
+                    }
+                    $this->db
+                        ->prepare(
+                            "UPDATE sms_purchases SET status='cancelled',remaining=0 WHERE id=?",
+                        )
+                        ->execute([$sms["id"]]);
+                } else {
+                    $this->entry(
+                        $local,
+                        $newReversal - $previousReversal,
+                        "reversal",
+                        "reversal:" . $newReversal,
+                        "Estorno de pagamento confirmado",
+                    );
+                }
             }
 
             // Respostas antigas não removem crédito ou desfazem estorno confirmado.

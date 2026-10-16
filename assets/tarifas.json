@@ -1,0 +1,20 @@
+{
+  "version": "2026-10-14",
+  "sms": [
+    { "max": 50000, "rate_mills": 60 },
+    { "max": null, "rate_mills": 50 }
+  ],
+  "whatsapp": [
+    { "max": 15000, "rate_mills": 380 },
+    { "max": 50000, "rate_mills": 350 },
+    { "max": null, "rate_mills": 320 }
+  ],
+  "longcode_rate_mills": 350,
+  "numbers": [
+    { "id": "online", "label": "Número hospedado online", "price_cents": 1499, "details": "30 dias · até 10 trocas de número no mês" },
+    { "id": "esim", "label": "Número eSIM", "price_cents": 2899, "details": "30 dias · até 10 trocas de número no mês" },
+    { "id": "sms", "label": "Número avulso com SMS", "price_cents": 500, "details": "WhatsApp sem garantia" },
+    { "id": "whatsapp", "label": "Número avulso com WhatsApp", "price_cents": 1000, "details": "SMS + acesso ao WhatsApp garantido" },
+    { "id": "subscription", "label": "Assinatura de 100 números", "price_cents": 59999, "details": "Mensal" }
+  ]
+}

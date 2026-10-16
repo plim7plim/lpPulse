@@ -13,6 +13,9 @@
       : "—";
   const labels = {
     pending: "Pendente",
+    expired: "Expirada",
+    refunded: "Estornada",
+    partially_refunded: "Estorno parcial",
     approved: "Aprovada",
     rejected: "Recusada",
     cancelled: "Cancelada",
@@ -31,6 +34,95 @@
   };
   let epoch = 0,
     loading = false;
+  const pixBox = element("section", undefined, "finance-pix");
+  pixBox.hidden = true;
+  pixBox.setAttribute("aria-label", "Pagamento Pix");
+  byId("finance-recharge-form").after(pixBox);
+  async function showPix(requestId) {
+    const current = epoch;
+    pixBox.hidden = false;
+    pixBox.replaceChildren(element("p", "Consultando a cobrança Pix…"));
+    try {
+      const result = await api().request("pix_checkout", { request_id: String(requestId) }, "POST");
+      if (current !== epoch) return;
+      const pix = result.pix;
+      pixBox.replaceChildren(element("h3", `Pix · ${money(result.amount)}`));
+      if (pix.environment === "homologacao")
+        pixBox.append(element("p", "Ambiente de testes. Não efetue um pagamento real."));
+      if (/^data:image\/png;base64,[A-Za-z0-9+/=\s]+$/.test(pix.qr_image || "")) {
+        const image = element("img");
+        image.src = pix.qr_image;
+        image.alt = "QR Code da cobrança Pix";
+        image.width = image.height = 220;
+        pixBox.append(image);
+      }
+      const label = element("label", "Pix copia e cola");
+      const code = element("textarea");
+      code.readOnly = true;
+      code.value = pix.copy_paste;
+      code.rows = 3;
+      label.append(code);
+      pixBox.append(label);
+      if (pix.expires_at)
+        pixBox.append(
+          element("p", `Validade: ${new Date(pix.expires_at).toLocaleString("pt-BR")}`)
+        );
+      const copy = element("button", "Copiar código", "button button-secondary");
+      copy.type = "button";
+      copy.disabled = !pix.copy_paste;
+      copy.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(code.value);
+          copy.textContent = "Código copiado";
+        } catch {
+          code.focus();
+          code.select();
+          copy.textContent = "Selecione e copie o código";
+        }
+      });
+      const check = element("button", "Verificar pagamento", "button button-primary");
+      check.type = "button";
+      const feedback = element("p", "O saldo será liberado após confirmação da Efí.");
+      feedback.setAttribute("role", "status");
+      check.addEventListener("click", async () => {
+        check.disabled = true;
+        try {
+          const response = await api().request(
+            "pix_status",
+            { request_id: String(requestId) },
+            "POST"
+          );
+          if (current !== epoch) return;
+          feedback.textContent =
+            response.status === "approved"
+              ? "Pagamento confirmado. Créditos liberados."
+              : `Pagamento: ${labels[response.status] || response.status}.`;
+          await load();
+        } catch (error) {
+          if (current === epoch) feedback.textContent = error.message;
+        } finally {
+          check.disabled = false;
+        }
+      });
+      pixBox.append(copy, check, feedback);
+    } catch (error) {
+      if (current === epoch) pixBox.replaceChildren(element("p", error.message));
+    }
+  }
+  function paymentAction(item) {
+    const wrap = element("span");
+    wrap.append(status(item.status));
+    if (item.method === "pix" && item.status === "pending" && writable()) {
+      const button = element("button", "Gerar Pix", "button button-secondary");
+      button.type = "button";
+      button.addEventListener("click", () => {
+        selectTab(byId("finance-tab-recharge"));
+        showPix(item.id);
+      });
+      wrap.append(button);
+    }
+    return wrap;
+  }
   const writable = () => ["owner", "manager"].includes(api()?.session.role);
   function element(tag, text, className) {
     const item = document.createElement(tag);
@@ -103,6 +195,8 @@
       );
       if (current !== epoch) return;
       byId("finance-balance").textContent = money(balance.balance);
+      byId("finance-sms-balance").textContent =
+        `Créditos SMS: ${Number(balance.sms_available || 0).toLocaleString("pt-BR")} · Longcode: ${Number(balance.longcode_available || 0).toLocaleString("pt-BR")}`;
       byId("finance-environment").textContent = api().session.test_environment
         ? "Dados do banco local de testes"
         : "Créditos registrados no extrato";
@@ -120,10 +214,10 @@
         byId("finance-requests"),
         ["Solicitação", "Valor", "Método", "Status"],
         requests.items.map((item) => [
-          `#${item.id} · ${date(item.created_at)}`,
+          `#${item.id} · ${item.sms_quantity ? Number(item.sms_quantity).toLocaleString("pt-BR") + (item.sms_channel === "longcode" ? " Longcode · " : " SMS · ") : ""}${date(item.created_at)}`,
           money(item.amount),
           labels[item.method] || item.method,
-          status(item.status)
+          paymentAction(item)
         ]),
         "Nenhuma recarga solicitada."
       );
@@ -207,11 +301,19 @@
       byId(feedbackId).textContent = "Registrando…";
       try {
         const payload = Object.fromEntries(new FormData(form));
-        if (action === "credit_requests") payload.amount = Number(payload.amount).toFixed(2);
-        await api().request(action, payload, "POST");
+        if (action === "credit_requests") {
+          payload.amount = Number(payload.amount).toFixed(2);
+          if (["sms", "longcode"].includes(payload.purchase_type)) {
+            payload.sms_quantity = Number(payload.sms_quantity);
+            payload.sms_channel = payload.purchase_type;
+          } else delete payload.sms_quantity;
+          delete payload.purchase_type;
+        }
+        const saved = await api().request(action, payload, "POST");
         if (current !== epoch) return;
         byId(feedbackId).textContent = message;
         await load();
+        if (action === "credit_requests" && saved.pix_available) await showPix(saved.id);
       } catch (error) {
         if (current === epoch) byId(feedbackId).textContent = error.message;
       } finally {
@@ -220,6 +322,37 @@
       }
     });
   }
+  const purchaseForm = byId("finance-recharge-form");
+  let priceCatalog = null;
+  function updatePurchase() {
+    const isSms = purchaseForm.elements.purchase_type.value !== "balance";
+    const quantity = purchaseForm.elements.sms_quantity;
+    quantity.disabled = !isSms;
+    quantity.required = isSms;
+    byId("finance-quantity-label").hidden = !isSms;
+    purchaseForm.elements.amount.readOnly = isSms;
+    byId("finance-sms-price").hidden = !isSms;
+    if (!isSms || !priceCatalog) return;
+    const count = Number(quantity.value);
+    if (!Number.isInteger(count) || count < 1 || count > 1000000) {
+      byId("finance-sms-price").textContent = "Informe uma quantidade inteira válida.";
+      return;
+    }
+    const tier =
+      purchaseForm.elements.purchase_type.value === "longcode"
+        ? { rate_mills: priceCatalog.longcode_rate_mills }
+        : priceCatalog.sms.find((band) => band.max === null || count <= band.max);
+    const cents = Math.ceil((count * tier.rate_mills) / 10);
+    purchaseForm.elements.amount.value = (cents / 100).toFixed(2);
+    byId("finance-sms-price").textContent =
+      `${count.toLocaleString("pt-BR")} SMS × ${money(tier.rate_mills / 1000)} = ${money(cents / 100)}. A tarifa vale para toda esta compra, sem somar compras anteriores.`;
+  }
+  purchaseForm.addEventListener("input", updatePurchase);
+  window.PulsePricing?.ready.then((catalog) => {
+    priceCatalog = catalog;
+    updatePurchase();
+  });
+  updatePurchase();
   save(
     "finance-recharge-form",
     "credit_requests",
@@ -241,6 +374,8 @@
   });
   window.addEventListener("pulse-api-mode", () => {
     epoch++;
+    pixBox.hidden = true;
+    pixBox.replaceChildren();
     loading = false;
     view.removeAttribute("aria-busy");
     ["finance-requests", "finance-entries", "finance-invoice-list"].forEach((id) =>

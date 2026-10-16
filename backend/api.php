@@ -45,6 +45,17 @@ try {
     }
     $config = require $resolved;
     if (
+        !empty($config["efi"]["enabled"]) &&
+        ($config["efi"]["environment"] ?? "homologacao") === "homologacao" &&
+        ($config["local_test"] ?? false) !== true
+    ) {
+        throw new \Pulse\PanelError(
+            "test_pix_blocked",
+            "Pix de homologação só pode ser usado no ambiente local de testes.",
+            503,
+        );
+    }
+    if (
         !is_array($config) ||
         empty($config["dsn"]) ||
         empty($config["username"]) ||
@@ -109,6 +120,7 @@ try {
         $config["api_secret"],
         $config["chipeira"] ?? [],
         $config["admin_user_ids"] ?? [],
+        $config["efi"] ?? [],
     );
     $token = $_COOKIE["pulse_session"] ?? "";
     if (is_string($token)) {

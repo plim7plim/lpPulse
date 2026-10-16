@@ -17,6 +17,18 @@ return [
     ],
     "merchant_id" => "",
     "gateway" => null,
+    "efi" => [
+        "enabled" => false,
+        "environment" => "producao",
+        "pix_key" => "",
+        "ca_bundle" => "", // Opcional quando o PHP já possui CAs confiáveis.
+        "producao" => [
+            "certificate" => "/caminho/privado/efi/efipay-producao.p12",
+            "certificate_password" => "",
+            "client_id" => "",
+            "client_secret" => "",
+        ],
+    ],
     "chipeira" => [
         "enabled" => false,
         "api_key" => "", // Mesmo PULSE_API_KEY da chipeira; nunca INTEGRATION_API_KEY.

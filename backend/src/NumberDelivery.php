@@ -100,6 +100,17 @@ final class NumberDelivery
     public function quote(string $company, array $data, string $user): array
     {
         $orderId = PanelValidation::id($data["id"] ?? null);
+        if (
+            $this->q("SELECT 1 FROM number_contract_orders WHERE service_request_id=?", [
+                $orderId,
+            ])->fetchColumn()
+        ) {
+            throw new PanelError(
+                "contract_managed",
+                "Entrega gerenciada pelo contrato. Não altere seu orçamento.",
+                409,
+            );
+        }
         $amount = PaymentValidator::cents(PanelValidation::amount($data["amount"] ?? null));
         $note = PanelValidation::text($data, "note", 500);
         $this->db->beginTransaction();
@@ -198,6 +209,17 @@ final class NumberDelivery
                     409,
                 );
             }
+            $expired = $this->q(
+                "SELECT 1 FROM number_contract_orders o JOIN number_contracts c ON c.id=o.contract_id WHERE o.service_request_id=? AND (c.status IN ('expired','cancelled') OR c.expires_at<=UTC_TIMESTAMP())",
+                [$id],
+            )->fetchColumn();
+            if ($expired) {
+                throw new PanelError(
+                    "contract_expired",
+                    "Contrato vencido. Renove antes de solicitar uma entrega.",
+                    409,
+                );
+            }
             $line = $this->line($order);
             $count = $line["quantity"];
             $amount = (int) $purchase["amount_cents"];
@@ -258,13 +280,19 @@ final class NumberDelivery
     }
     public function owned(string $company): array
     {
+        if (class_exists(NumberContracts::class)) {
+            (new NumberContracts($this->db, $this->gateway))->sync($company);
+        }
         return $this->q(
-            "SELECT i.id,i.phone,i.type,i.delivered_at,f.service_request_id order_id FROM number_inventory i JOIN number_fulfillments f ON f.id=i.fulfillment_id AND f.company_id=i.company_id WHERE i.company_id=? AND i.status='delivered' AND f.status IN ('paid','completed') ORDER BY i.id DESC",
+            "SELECT i.id,i.phone,i.type,i.delivered_at,f.service_request_id order_id FROM number_inventory i JOIN number_fulfillments f ON f.id=i.fulfillment_id AND f.company_id=i.company_id LEFT JOIN number_contract_orders co ON co.service_request_id=f.service_request_id LEFT JOIN number_contracts c ON c.id=co.contract_id WHERE i.company_id=? AND i.status='delivered' AND f.status IN ('paid','completed') AND (c.id IS NULL OR c.product='subscription' OR (c.status IN ('paid','active') AND (c.expires_at IS NULL OR c.expires_at>UTC_TIMESTAMP()))) ORDER BY i.id DESC",
             [$company],
         )->fetchAll(\PDO::FETCH_ASSOC);
     }
     public function messages(string $company, array $data): array
     {
+        if (class_exists(NumberContracts::class)) {
+            (new NumberContracts($this->db, $this->gateway))->sync($company);
+        }
         $id = PanelValidation::id($data["id"] ?? null);
         $item = $this->q(
             "SELECT phone FROM number_inventory WHERE id=? AND company_id=? AND status='delivered'",
@@ -272,6 +300,13 @@ final class NumberDelivery
         )->fetch(\PDO::FETCH_ASSOC);
         if (!$item) {
             throw new PanelError("not_found", "Número indisponível para esta conta.", 404);
+        }
+        $blocked = $this->q(
+            "SELECT 1 FROM number_inventory i JOIN number_fulfillments f ON f.id=i.fulfillment_id JOIN number_contract_orders co ON co.service_request_id=f.service_request_id JOIN number_contracts c ON c.id=co.contract_id WHERE i.id=? AND c.product='online' AND (c.status IN ('expired','cancelled') OR c.expires_at<=UTC_TIMESTAMP())",
+            [$id],
+        )->fetchColumn();
+        if ($blocked) {
+            throw new PanelError("contract_expired", "O contrato do número venceu.", 403);
         }
         return $this->gateway->handle($company, "GET", [
             "op" => "messages",
@@ -288,7 +323,7 @@ final class NumberDelivery
     public function deliver(string $company): array
     {
         $items = $this->q(
-            "SELECT i.* FROM number_inventory i JOIN companies c ON c.id=i.company_id WHERE i.company_id=? AND c.status='active' AND i.status IN ('allocated','activating') ORDER BY i.id LIMIT 10",
+            "SELECT i.* FROM number_inventory i JOIN companies c ON c.id=i.company_id LEFT JOIN number_fulfillments cf ON cf.id=i.fulfillment_id LEFT JOIN number_contract_orders co ON co.service_request_id=cf.service_request_id LEFT JOIN number_contracts nc ON nc.id=co.contract_id WHERE i.company_id=? AND c.status='active' AND i.status IN ('allocated','activating') AND (nc.id IS NULL OR nc.product='subscription' OR (nc.status IN ('paid','active') AND (nc.expires_at IS NULL OR nc.expires_at>UTC_TIMESTAMP()))) ORDER BY i.id LIMIT 10",
             [$company],
         )->fetchAll(\PDO::FETCH_ASSOC);
         $delivered = 0;

@@ -29,12 +29,30 @@
     if (className) el.className = className;
     return el;
   }
+  let catalog = null;
+  window.PulsePricing?.ready.then((value) => {
+    catalog = value;
+    update();
+  });
   function update() {
     const amount = [...body.querySelectorAll('[data-field="quantity"]')].reduce(
       (sum, input) => sum + (Number(input.value) || 0),
       0
     );
     total.textContent = `${amount} ${amount === 1 ? "número solicitado" : "números solicitados"}`;
+    if (catalog) {
+      const estimate = [...body.rows].reduce((sum, row) => {
+        const item = catalog.numbers.find(
+          (item) => item.id === row.querySelector('[data-field="type"]').value
+        );
+        return (
+          sum +
+          (item?.price_cents || 0) *
+            (Number(row.querySelector('[data-field="quantity"]').value) || 0)
+        );
+      }, 0);
+      total.textContent += ` · estimativa ${money(estimate)}`;
+    }
     add.disabled = sending || !allowed() || body.rows.length >= 20;
     submit.disabled = sending || !allowed();
     body.querySelectorAll("input,select,button").forEach((el) => {

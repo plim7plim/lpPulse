@@ -8,6 +8,7 @@
     "whatsapp-numbers": "Comprar números",
     campaigns: "Campanhas",
     finance: "Financeiro",
+    contracts: "Planos e contratos",
     account: "Minha conta",
     admin: "Administração"
   };

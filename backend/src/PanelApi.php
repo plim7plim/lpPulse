@@ -6,6 +6,8 @@ require_once __DIR__ . "/ChipeiraGateway.php";
 require_once __DIR__ . "/SmsBilling.php";
 require_once __DIR__ . "/AdminApi.php";
 require_once __DIR__ . "/NumberDelivery.php";
+require_once __DIR__ . "/NumberContracts.php";
+require_once __DIR__ . "/EfiPayments.php";
 
 final class PanelApi
 {
@@ -15,12 +17,19 @@ final class PanelApi
     private string $token = "";
     private array $chipeira;
     private array $admins;
-    public function __construct(\PDO $db, string $secret, array $chipeira = [], array $admins = [])
-    {
+    private array $efi;
+    public function __construct(
+        \PDO $db,
+        string $secret,
+        array $chipeira = [],
+        array $admins = [],
+        array $efi = []
+    ) {
         $this->db = $db;
         $this->secret = $secret;
         $this->chipeira = $chipeira;
         $this->admins = array_map("strval", $admins);
+        $this->efi = $efi;
     }
     private function query(string $sql, array $params = []): \PDOStatement
     {
@@ -220,6 +229,27 @@ final class PanelApi
                     403,
                 );
             }
+            if ($method === "GET" && ($data["op"] ?? "") === "messages") {
+                $number = PanelValidation::text($data, "number", 32);
+                if (!preg_match('/^\+?[0-9]{10,15}$/D', $number)) {
+                    throw new PanelError("invalid_number", "Número inválido.");
+                }
+                $digits = ltrim(ltrim($number, "+"), "0");
+                if (strlen($digits) === 10 || strlen($digits) === 11) {
+                    $digits = "55" . $digits;
+                }
+                $data["number"] = "+" . $digits;
+                (new NumberContracts($this->db, new ChipeiraGateway($this->chipeira)))->sync(
+                    $this->company(),
+                );
+                $blocked = $this->row(
+                    "SELECT i.id FROM number_inventory i JOIN number_fulfillments f ON f.id=i.fulfillment_id JOIN number_contract_orders o ON o.service_request_id=f.service_request_id JOIN number_contracts c ON c.id=o.contract_id WHERE i.phone=? AND i.company_id=? AND c.product='online' AND (i.status='retired' OR c.status IN ('expired','cancelled') OR c.expires_at<=UTC_TIMESTAMP()) LIMIT 1",
+                    [$data["number"] ?? "", $this->company()],
+                );
+                if ($blocked) {
+                    throw new PanelError("contract_expired", "Número vencido ou substituído.", 403);
+                }
+            }
             $billing = new SmsBilling($this->db, new ChipeiraGateway($this->chipeira));
             if (($data["op"] ?? "") === "quote" && $method === "POST") {
                 return $billing->estimate($this->company(), $data);
@@ -228,6 +258,24 @@ final class PanelApi
                 return $billing->create($this->company(), $data);
             }
             return (new ChipeiraGateway($this->chipeira))->handle($this->company(), $method, $data);
+        }
+        if ($action === "number_contracts") {
+            $contracts = new NumberContracts($this->db, new ChipeiraGateway($this->chipeira));
+            if ($method === "GET") {
+                return $contracts->listing($this->company());
+            }
+            if ($method !== "POST") {
+                throw new PanelError("method_not_allowed", "Use GET ou POST.", 405);
+            }
+            $this->requireRole(["owner", "manager"]);
+            $op = PanelValidation::choice($data, "op", ["buy", "renew", "redeem"]);
+            if ($op === "buy") {
+                return $contracts->buy($this->company(), $data);
+            }
+            if ($op === "renew") {
+                return $contracts->renew($this->company(), $data);
+            }
+            return $contracts->redeem($this->company(), $this->user(), $data);
         }
         if ($action === "admin") {
             if (!in_array($this->user(), $this->admins, true)) {
@@ -270,7 +318,14 @@ final class PanelApi
         if (
             in_array(
                 $action,
-                ["billing_preferences", "credit_requests", "invoices", "balance"],
+                [
+                    "billing_preferences",
+                    "credit_requests",
+                    "invoices",
+                    "balance",
+                    "pix_checkout",
+                    "pix_status",
+                ],
                 true,
             )
         ) {
@@ -278,6 +333,20 @@ final class PanelApi
                 throw new PanelError("method_not_allowed", "Use GET ou POST.", 405);
             }
             switch ($action) {
+                case "pix_checkout":
+                case "pix_status":
+                    if ($method !== "POST") {
+                        throw new PanelError("method_not_allowed", "Use POST.", 405);
+                    }
+                    $this->requireRole(["owner", "manager"]);
+                    $id = (string) ($data["request_id"] ?? "");
+                    if (!preg_match('/^[1-9][0-9]{0,18}$/D', $id)) {
+                        throw new PanelError("invalid_payment", "Solicitação inválida.");
+                    }
+                    $payments = new EfiPayments($this->db, $this->efi);
+                    return $action === "pix_checkout"
+                        ? $payments->checkout($this->company(), $id)
+                        : $payments->reconcile($this->company(), $id);
                 case "billing_preferences":
                     if ($method === "POST") {
                         $this->requireRole(["owner", "manager"]);
@@ -302,24 +371,62 @@ final class PanelApi
                 case "credit_requests":
                     if ($method === "POST") {
                         $this->requireRole(["owner", "manager"]);
-                        $amount = PanelValidation::amount($data["amount"] ?? null);
+                        $sms = isset($data["sms_quantity"])
+                            ? SmsPurchases::quote(
+                                $data["sms_quantity"],
+                                $data["sms_channel"] ?? "sms",
+                            )
+                            : null;
+                        $amount = $sms
+                            ? PaymentValidator::decimal($sms["amount_cents"])
+                            : PanelValidation::amount($data["amount"] ?? null);
                         $paymentMethod = PanelValidation::choice($data, "method", [
                             "pix",
                             "boleto",
                         ]);
-                        $this->query(
-                            "INSERT INTO credit_requests (company_id,created_by,amount,method) VALUES (?,?,?,?)",
-                            [$this->company(), $this->user(), $amount, $paymentMethod],
-                        );
+                        $ownsTransaction = !$this->db->inTransaction();
+                        if ($ownsTransaction) {
+                            $this->db->beginTransaction();
+                        }
+                        try {
+                            $this->query(
+                                "INSERT INTO credit_requests (company_id,created_by,amount,method) VALUES (?,?,?,?)",
+                                [$this->company(), $this->user(), $amount, $paymentMethod],
+                            );
+                            $requestId = $this->db->lastInsertId();
+                            if ($sms) {
+                                $this->query(
+                                    "INSERT INTO sms_purchases(company_id,credit_request_id,quantity,rate_mills,channel) VALUES(?,?,?,?,?)",
+                                    [
+                                        $this->company(),
+                                        $requestId,
+                                        $sms["quantity"],
+                                        $sms["rate_mills"],
+                                        $sms["channel"],
+                                    ],
+                                );
+                            }
+                            if ($ownsTransaction) {
+                                $this->db->commit();
+                            }
+                        } catch (\Throwable $e) {
+                            if ($ownsTransaction && $this->db->inTransaction()) {
+                                $this->db->rollBack();
+                            }
+                            throw $e;
+                        }
                         return [
-                            "id" => $this->db->lastInsertId(),
+                            "id" => $requestId,
                             "status" => "pending",
                             "charge_created" => false,
+                            "pix_available" =>
+                                $paymentMethod === "pix" &&
+                                (new EfiPayments($this->db, $this->efi))->ready(),
                         ];
                     }
                     return [
                         "items" => $this->rows(
-                            "SELECT id,amount,method,status,created_at,updated_at FROM credit_requests WHERE company_id=? ORDER BY id DESC LIMIT 100",
+                            "SELECT r.id,r.amount,r.method,r.status,r.created_at,r.updated_at,p.quantity sms_quantity,p.rate_mills,p.channel sms_channel FROM credit_requests r LEFT JOIN sms_purchases p ON p.credit_request_id=r.id WHERE r.company_id=? ORDER BY r.id DESC LIMIT 100",
                             [$this->company()],
                         ),
                     ];
@@ -350,6 +457,12 @@ final class PanelApi
                             "SELECT COALESCE(SUM(amount),0) amount FROM balance_entries WHERE company_id=?",
                             [$this->company()],
                         )["amount"],
+                        "sms_available" => SmsPurchases::available($this->db, $this->company()),
+                        "longcode_available" => SmsPurchases::available(
+                            $this->db,
+                            $this->company(),
+                            "longcode",
+                        ),
                         "items" => $this->rows(
                             "SELECT id,type,amount,description,occurred_at FROM balance_entries WHERE company_id=? ORDER BY occurred_at DESC,id DESC LIMIT 100",
                             [$this->company()],

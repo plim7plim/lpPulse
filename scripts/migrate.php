@@ -16,4 +16,6 @@ $db = new PDO($config["dsn"], $config["username"], $config["password"], [
 $db->exec(file_get_contents(__DIR__ . "/../database/migrations/006_sms_billing_admin.sql"));
 $db->exec(file_get_contents(__DIR__ . "/../database/migrations/007_registration.sql"));
 $db->exec(file_get_contents(__DIR__ . "/../database/migrations/008_number_delivery.sql"));
-echo "Migrações 006, 007 e 008 aplicadas.\n";
+$db->exec(file_get_contents(__DIR__ . "/../database/migrations/009_sms_purchases.sql"));
+$db->exec(file_get_contents(__DIR__ . "/../database/migrations/010_number_contracts.sql"));
+echo "Migrações 006 a 010 aplicadas.\n";

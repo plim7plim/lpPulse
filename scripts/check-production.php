@@ -14,6 +14,24 @@ foreach (["pdo_mysql", "curl", "iconv"] as $extension) {
 $path = getenv("PULSE_CONFIG_PATH");
 $resolved = $path ? realpath($path) : false;
 $config = $resolved ? require $resolved : [];
+if (!empty($config["efi"]["enabled"])) {
+    $checks["Efí em produção"] = ($config["efi"]["environment"] ?? "") === "producao";
+    $efiCredentials = $config["efi"]["producao"] ?? [];
+    $checks["Credenciais Pix preenchidas"] =
+        !empty($efiCredentials["client_id"]) &&
+        !empty($efiCredentials["client_secret"]) &&
+        !empty($config["efi"]["pix_key"]);
+    $efiCertificate = realpath($efiCredentials["certificate"] ?? "");
+    $efiPublic = realpath($config["public_root"] ?? __DIR__ . "/..");
+    $checks["Certificado Pix fora da pasta pública"] =
+        $efiPublic &&
+        $efiCertificate &&
+        is_readable($efiCertificate) &&
+        strpos(
+            strtolower(str_replace("\\", "/", $efiCertificate)),
+            strtolower(str_replace("\\", "/", $efiPublic)) . "/",
+        ) !== 0;
+}
 $publicRoot = realpath($config["public_root"] ?? __DIR__ . "/..");
 $root = str_replace("\\", "/", $publicRoot ?: __DIR__ . "/..") . "/";
 $checks["Configuração fora do projeto"] =
@@ -41,12 +59,17 @@ if ($checks["Configuração fora do projeto"]) {
                 "admin_events",
                 "number_fulfillments",
                 "number_inventory",
+                "sms_purchases",
+                "sms_purchase_allocations",
+                "number_contracts",
+                "number_contract_orders",
+                "number_contract_renewals",
             ]
             as $table
         ) {
             $db->query("SELECT 1 FROM " . $table . " LIMIT 1");
         }
-        $checks["Banco e migrações 006/007/008"] = true;
+        $checks["Banco e migrações 006 a 010"] = true;
         $checks["Sem contas ilimitadas"] =
             $db
                 ->query("SELECT COUNT(*) FROM sms_billing_accounts WHERE unlimited=1")
@@ -63,7 +86,7 @@ if ($checks["Configuração fora do projeto"]) {
             }
         }
     } catch (Throwable $e) {
-        $checks["Banco e migrações 006/007/008"] = false;
+        $checks["Banco e migrações 006 a 010"] = false;
     }
     try {
         (new Pulse\AuthEmail($config))->ready();

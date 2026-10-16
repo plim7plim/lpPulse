@@ -244,6 +244,9 @@
   margin: 16px 0 0;
   color: #9e6e26;
 }
+[data-theme="dark"] .pc-dialog > .pc-storage {
+  color: #f3ca77;
+}
 @media (max-width: 900px) {
   .pc-banner {
     display: block;

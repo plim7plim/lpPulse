@@ -186,3 +186,52 @@
     border-radius: 0;
   }
 }
+
+.pricing-wide {
+  grid-column: 1 / -1;
+}
+[data-theme="dark"] .price-table thead {
+  background: var(--surface-raised);
+}
+[data-theme="dark"] .price-table tbody tr:hover {
+  background: #26392d;
+}
+[data-theme="dark"] .table-scroll {
+  border-color: #405047;
+}
+.finance-pix {
+  margin-top: 24px;
+  padding: clamp(18px, 3vw, 28px);
+  border: 1px solid var(--border, #d5e5dd);
+  border-radius: 16px;
+  background: var(--surface, transparent);
+}
+.finance-pix[hidden] {
+  display: none;
+}
+.finance-pix img {
+  display: block;
+  background: #fff;
+  padding: 8px;
+  border-radius: 12px;
+  max-width: 100%;
+  height: auto;
+  margin: 16px 0;
+}
+.finance-pix label {
+  display: grid;
+  gap: 8px;
+}
+.finance-pix textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  font: inherit;
+  overflow-wrap: anywhere;
+}
+.finance-pix button {
+  margin: 12px 8px 0 0;
+}
+.finance-table td .button {
+  margin-left: 10px;
+}

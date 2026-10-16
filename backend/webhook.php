@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . "/src/PaymentGateway.php";
 require_once __DIR__ . "/src/PaymentValidator.php";
 require_once __DIR__ . "/src/PaymentConfirmation.php";
+require_once __DIR__ . "/src/EfiPix.php";
 
 header("Content-Type: application/json; charset=utf-8");
 header("Cache-Control: no-store");
@@ -23,7 +24,19 @@ if (!$path || !is_file($path)) {
     respond(503, ["error" => "Pagamentos ainda não configurados."]);
 }
 $config = require $path;
+if (
+    !empty($config["efi"]["enabled"]) &&
+    ($config["efi"]["environment"] ?? "homologacao") === "homologacao" &&
+    ($config["local_test"] ?? false) !== true
+) {
+    respond(503, ["error" => "Ambiente Pix inválido para produção."]);
+}
 $gateway = $config["gateway"] ?? null;
+$efi = new \Pulse\EfiPix($config["efi"] ?? []);
+if ($efi->ready()) {
+    $gateway = $efi;
+    $config["merchant_id"] = $efi->merchant();
+}
 if (!($gateway instanceof \Pulse\PaymentGateway) || empty($config["merchant_id"])) {
     respond(503, ["error" => "Provedor ainda não configurado."]);
 }

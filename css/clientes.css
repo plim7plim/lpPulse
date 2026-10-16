@@ -1787,6 +1787,65 @@ dialog::backdrop {
     opacity: 1;
   }
 }
+[data-theme="dark"] .sidebar {
+  background: #151f19;
+  border-color: #34483b;
+}
+[data-theme="dark"] .topbar {
+  background: var(--bg);
+}
+[data-theme="dark"] .service-panel {
+  box-shadow: var(--shadow);
+}
+[data-theme="dark"] :is(input, select, textarea) {
+  background: #141d18;
+  border-color: #405047;
+}
+[data-theme="dark"] :is(input, select, textarea):hover {
+  border-color: #718479;
+}
+[data-theme="dark"] :is(input, select, textarea):focus {
+  border-color: var(--green-strong);
+  box-shadow: 0 0 0 3px #78e8ac14;
+}
+[data-theme="dark"] :is(input, textarea)::placeholder {
+  color: #a5b4ab;
+  opacity: 1;
+}
+[data-theme="dark"] input[readonly] {
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+[data-theme="dark"] .finance-tabs {
+  border: 1px solid var(--line);
+}
+[data-theme="dark"] .finance-tabs [aria-selected="true"] {
+  background: #2c4837;
+  color: #99edbd;
+}
+[data-theme="dark"] .finance-summary .finance-balance {
+  background: #193a29;
+  border-color: #42654e;
+}
+[data-theme="dark"] .finance-balance strong {
+  color: #e9fff0;
+}
+[data-theme="dark"] .finance-status:is(.pending, .overdue, .issued) {
+  color: #f3ca77;
+  background: #473a202e;
+  border: 1px solid #bc95453d;
+}
+[data-theme="dark"] .finance-status:is(.cancelled, .failed, .rejected) {
+  color: #ffa69b;
+  background: #dd675918;
+}
+[data-theme="dark"] .composer-heading {
+  background: #23382b;
+}
+[data-theme="dark"] .service-detail-dialog {
+  background: var(--surface);
+  border-color: #526658;
+}
 @media (max-width: 760px) {
   .composer-recipients {
     border-left: 0;
@@ -1831,4 +1890,17 @@ dialog::backdrop {
     padding-top: 20px;
     border-top: 1px solid var(--line);
   }
+}
+
+.contract-list {
+  display: grid;
+  gap: 18px;
+}
+.composer-channel {
+  display: grid;
+  gap: 8px;
+  max-width: 360px;
+  margin-bottom: 24px;
+  font-size: 12px;
+  font-weight: 600;
 }

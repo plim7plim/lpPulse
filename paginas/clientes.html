@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>SMS · Pulse</title>
-    <link rel="stylesheet" href="../css/base.css?v=20261013-visual4" />
+    <link rel="stylesheet" href="../css/base.css?v=20261014-dark1" />
     <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
     <script src="../js/tema.js?v=20261013-visual4"></script>
-    <link rel="stylesheet" href="../css/clientes.css?v=20261013-visual4" />
-    <link rel="stylesheet" href="../css/tarifas.css?v=20261013-visual4" />
+    <link rel="stylesheet" href="../css/clientes.css?v=20261014-services1" />
+    <link rel="stylesheet" href="../css/tarifas.css?v=20261015-pix1" />
     <link rel="stylesheet" href="../css/acesso.css?v=20261013-visual4" />
     <link rel="stylesheet" href="../css/cookies.css?v=20261013-visual4" />
   </head>
@@ -144,6 +144,11 @@
               <path d="M8 7c0 5 4 9 9 9M8 7h2l1 3-2 1M17 16v-2l-3-1-1 2" /></svg
             ><span class="nav-label">Comprar números</span>
           </button>
+          <button data-view="contracts" aria-label="Planos e contratos">
+            <svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M6 3h12v18H6zM9 8h6M9 12h6M9 16h4" /></svg
+            ><span class="nav-label">Planos e contratos</span>
+          </button>
           <button data-view="account" aria-label="Minha conta">
             <svg class="nav-icon" aria-hidden="true" viewBox="0 0 24 24">
               <circle cx="12" cy="8" r="4" />
@@ -188,94 +193,68 @@
               </p>
             </div>
             <section class="service-panel pricing-panel" aria-labelledby="pricing-title">
-              <div class="service-panel-top">
-                <h2 id="pricing-title">Pacotes e tarifas</h2>
-                <span class="pricing-label">Tabela de valores</span>
-              </div>
-              <div class="pricing-grid">
-                <div class="pricing-group">
-                  <h3 id="sms-prices-title">SMS</h3>
-                  <div
-                    class="table-scroll"
-                    role="region"
-                    aria-labelledby="sms-prices-title"
-                    tabindex="0"
-                  >
-                    <table class="price-table">
-                      <thead>
-                        <tr>
-                          <th scope="col">Pacote</th>
-                          <th scope="col">Preço</th>
-                          <th scope="col">Por SMS</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th scope="row">10.000 SMS</th>
-                          <td>R$ 500,00</td>
-                          <td>R$ 0,050</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">15.000 SMS</th>
-                          <td>R$ 720,00</td>
-                          <td>R$ 0,048</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">20.000 SMS</th>
-                          <td>R$ 920,00</td>
-                          <td>R$ 0,046</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Avulso</th>
-                          <td>Mín. R$ 500,00</td>
-                          <td><strong>R$ 0,045/SMS</strong></td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-                <div class="pricing-group">
-                  <h3 id="whatsapp-prices-title">
-                    WhatsApp <span>Recarga mínima de R$ 2.500</span>
-                  </h3>
-                  <div
-                    class="table-scroll"
-                    role="region"
-                    aria-labelledby="whatsapp-prices-title"
-                    tabindex="0"
-                  >
-                    <table class="price-table">
-                      <thead>
-                        <tr>
-                          <th scope="col">Faixa de recarga</th>
-                          <th scope="col">Tarifa / crédito</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <th scope="row">Até R$ 5.000</th>
-                          <td>R$ 0,45</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Até R$ 30.000</th>
-                          <td>R$ 0,40</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">Acima de R$ 30.000</th>
-                          <td>R$ 0,35</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                  <p class="pricing-example">
-                    R$ 2.500 ÷ 0,45 ≈ <strong>5.555 créditos WhatsApp.</strong>
-                  </p>
-                </div>
-              </div>
-              <p class="pricing-note">
-                Valores para consulta. Esta tabela não ativa pacotes nem gera cobranças.
-              </p>
+              <p class="pricing-note" role="status">Carregando preços…</p>
             </section>
+          </section>
+          <section id="contracts-view" hidden>
+            <div class="page-heading">
+              <p class="eyebrow">PLANOS</p>
+              <h1>Planos e contratos</h1>
+              <p>Contrate com saldo em reais e acompanhe a validade e as entregas.</p>
+            </div>
+            <div class="pricing-grid">
+              <article class="service-panel">
+                <h2>Número hospedado online</h2>
+                <p class="service-description">
+                  Um número por 30 dias, com consulta dos SMS pelo painel e até 10 trocas por
+                  período. O prazo começa na primeira entrega. Números disponíveis conforme o
+                  estoque.
+                </p>
+                <button class="button primary" type="button" data-contract-buy="online" disabled>
+                  Carregando preço…
+                </button>
+              </article>
+              <article class="service-panel">
+                <h2>Assinatura de 100 números</h2>
+                <p class="service-description">
+                  Cota de 100 números avulsos com SMS a cada período de 30 dias. Solicite entregas
+                  em lotes conforme o estoque. A renovação é manual e não transfere a cota restante
+                  para o período seguinte.
+                </p>
+                <button
+                  class="button primary"
+                  type="button"
+                  data-contract-buy="subscription"
+                  disabled
+                >
+                  Carregando preço…
+                </button>
+              </article>
+            </div>
+            <div class="service-panel-top" style="margin-top: 28px">
+              <h2>Seus contratos</h2>
+              <button id="contract-refresh" class="button secondary" type="button">
+                Atualizar
+              </button>
+            </div>
+            <div id="contract-list" class="contract-list"></div>
+            <p id="contract-feedback" role="status" class="service-feedback"></p>
+            <dialog
+              id="contract-confirm"
+              class="service-detail-dialog"
+              aria-labelledby="contract-confirm-title"
+            >
+              <h2 id="contract-confirm-title">Revise a solicitação</h2>
+              <p id="contract-confirm-text"></p>
+              <p id="contract-confirm-feedback" role="status" class="service-feedback"></p>
+              <div class="module-actions">
+                <button id="contract-confirm-close" class="button secondary" type="button">
+                  Voltar</button
+                ><button id="contract-confirm-submit" class="button primary" type="button">
+                  Confirmar
+                </button>
+              </div>
+            </dialog>
           </section>
           <section id="my-numbers-view" hidden>
             <div class="page-heading">
@@ -309,12 +288,12 @@
               </div>
               <div class="number-order-guide">
                 <p>
-                  <strong>SMS</strong><br />Recebimento de SMS. O número pode ter WhatsApp, sem
-                  garantia desse acesso.
+                  <strong>SMS · R$ 5,00 por número</strong><br />Recebimento de SMS. O número pode
+                  ter WhatsApp, sem garantia desse acesso.
                 </p>
                 <p>
-                  <strong>SMS + WhatsApp garantido</strong><br />Acesso pelo celular com o código
-                  SMS recebido no Pulse após a compra.
+                  <strong>SMS + WhatsApp garantido · R$ 10,00 por número</strong><br />Acesso pelo
+                  celular com o código SMS recebido no Pulse após a compra.
                 </p>
               </div>
               <form id="number-order-form">
@@ -467,6 +446,25 @@
                   <h2>Solicitar recarga</h2>
                   <form id="finance-recharge-form" class="finance-form">
                     <label
+                      >O que deseja comprar<select name="purchase_type" id="finance-purchase-type">
+                        <option value="sms">Créditos SMS</option>
+                        <option value="longcode">Créditos SMS longcode · R$ 0,35</option>
+                        <option value="balance">Saldo em reais</option>
+                      </select></label
+                    >
+                    <label id="finance-quantity-label"
+                      >Quantidade de SMS<input
+                        name="sms_quantity"
+                        id="finance-sms-quantity"
+                        type="number"
+                        min="1"
+                        max="1000000"
+                        step="1"
+                        value="50000"
+                        required
+                    /></label>
+                    <p id="finance-sms-price" class="import-hint" role="status"></p>
+                    <label
                       >Valor da recarga (R$)<input
                         name="amount"
                         type="number"
@@ -549,6 +547,7 @@
                 <p id="finance-preferences-feedback" class="service-feedback" role="status"></p>
               </form>
             </section>
+            <p id="finance-sms-balance" class="service-description">Créditos SMS: —</p>
             <p id="finance-feedback" class="service-feedback" role="status"></p>
           </section>
           <section id="admin-view" hidden>
@@ -620,6 +619,10 @@
                 >
                 <button type="submit" class="button primary">Cadastrar no estoque</button>
               </form>
+              <section class="service-panel">
+                <h2>Contratos de números</h2>
+                <div id="admin-contracts"></div>
+              </section>
               <div id="admin-inventory"></div>
             </section>
             <section class="service-panel">
@@ -719,12 +722,14 @@
         </main>
       </div>
     </div>
-    <script src="../js/clientes.js?v=20261009-1"></script>
+    <script src="../js/precos.js?v=20261014-services1"></script>
+    <script src="../js/clientes.js?v=20261014-services1"></script>
     <script src="../js/api.js?v=20261009-1"></script>
-    <script src="../js/chipeira.js?v=20261009-1"></script>
-    <script src="../js/admin.js?v=20261013-2"></script>
-    <script src="../js/financeiro.js?v=20261009-1"></script>
-    <script src="../js/numeros-whatsapp.js?v=20261013-2"></script>
+    <script src="../js/chipeira.js?v=20261014-services2"></script>
+    <script src="../js/admin.js?v=20261014-services1"></script>
+    <script src="../js/contratos.js?v=20261014-services1"></script>
+    <script src="../js/financeiro.js?v=20261015-pix1"></script>
+    <script src="../js/numeros-whatsapp.js?v=20261014-1"></script>
     <script src="../js/importar-contatos.js?v=20261008-3"></script>
     <script src="../js/animacoes.js?v=20261013-visual4"></script>
     <script src="../js/cookies.js?v=20261008-4"></script>

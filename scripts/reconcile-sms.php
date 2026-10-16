@@ -6,11 +6,20 @@ if (PHP_SAPI !== "cli") {
 }
 require_once __DIR__ . "/../backend/src/SmsBilling.php";
 require_once __DIR__ . "/../backend/src/NumberDelivery.php";
+require_once __DIR__ . "/../backend/src/NumberContracts.php";
+require_once __DIR__ . "/../backend/src/EfiPayments.php";
 $path = getenv("PULSE_CONFIG_PATH");
 if (!$path || !is_file($path)) {
     throw new RuntimeException("Defina PULSE_CONFIG_PATH.");
 }
 $config = require $path;
+if (
+    !empty($config["efi"]["enabled"]) &&
+    ($config["efi"]["environment"] ?? "homologacao") === "homologacao" &&
+    ($config["local_test"] ?? false) !== true
+) {
+    throw new RuntimeException("Pix de homologação bloqueado fora do ambiente de testes.");
+}
 $lock = fopen(dirname(realpath($path)) . "/pulse-reconciliation.lock", "c");
 if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
     fwrite(STDERR, "Conferência já em execução ou diretório privado sem permissão.\n");
@@ -23,18 +32,22 @@ do {
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ]);
         $db->exec("SET time_zone='+00:00'");
+        (new Pulse\EfiPayments($db, $config["efi"] ?? []))->reconcilePending();
         $gateway = new Pulse\ChipeiraGateway($config["chipeira"] ?? []);
         $billing = new Pulse\SmsBilling($db, $gateway);
         $delivery = new Pulse\NumberDelivery($db, $gateway);
+        $contracts = new Pulse\NumberContracts($db, $gateway);
+        $contracts->expire();
         $companies = $db
             ->query(
-                "SELECT DISTINCT company_id FROM sms_charges WHERE status IN ('reserved','running') UNION SELECT DISTINCT company_id FROM number_inventory WHERE status IN ('allocated','activating')",
+                "SELECT DISTINCT company_id FROM sms_charges WHERE status IN ('reserved','running') UNION SELECT DISTINCT company_id FROM number_inventory WHERE status IN ('allocated','activating') UNION SELECT company_id FROM number_contracts WHERE status IN ('paid','active')",
             )
             ->fetchAll(PDO::FETCH_COLUMN);
         foreach ($companies as $company) {
             try {
                 $sms = $billing->reconcile((string) $company);
                 $numbers = $delivery->deliver((string) $company);
+                $contracts->sync((string) $company);
                 echo gmdate("c") .
                     " Empresa " .
                     $company .
